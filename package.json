@@ -18,6 +18,7 @@
   "author": "zhangshaoju",
   "license": "bigbrian.lic",
   "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
   "peerDependencies": {
