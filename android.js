@@ -14,7 +14,7 @@ var iface = {
       documentAnimation : PropTypes.bool,      
       detectionCountBeforeCapture : PropTypes.number,      
       enableTorch : PropTypes.bool,
-      manualOnly: PropTypes.bool,   
+      manualOnly: PropTypes.bool,
       overlayColor: PropTypes.string,
       contrast: PropTypes.number,
       brightness: PropTypes.number,
@@ -35,14 +35,20 @@ class Scanner extends PureComponent{
 
   componentWillMount(){
     const { onPictureTaken, onProcessing } = this.props;
-    DeviceEventEmitter.addListener('onPictureTaken', onPictureTaken);
-    DeviceEventEmitter.addListener('onProcessingChange', onProcessing);
+    this.onPictureTakenOff = DeviceEventEmitter.addListener('onPictureTaken', onPictureTaken);
+    this.onProcessingChangeOff = DeviceEventEmitter.addListener('onProcessingChange', onProcessing);
   }
   
   componentWillUnmount(){
-    const { onPictureTaken, onProcessing } = this.props;
-    DeviceEventEmitter.removeListener('onPictureTaken', onPictureTaken);
-    DeviceEventEmitter.removeListener('onProcessingChange', onProcessing);
+    //const { onPictureTaken, onProcessing } = this.props;
+    //DeviceEventEmitter.removeListener('onPictureTaken', onPictureTaken);
+    //DeviceEventEmitter.removeListener('onProcessingChange', onProcessing);
+    if(this.onPictureTakenOff){
+      this.onPictureTakenOff.remove();
+    }
+    if(this.onProcessingChangeOff){
+      this.onProcessingChangeOff.remove();
+    }
   }
 
   capture = ()=>{

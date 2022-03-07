@@ -1,0 +1,10 @@
+node_modules
+Example
+images
+android/.gradle
+android/.idea
+android/build
+android/local.properties
+
+android/openCVLibrary310/build
+

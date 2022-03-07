@@ -6,12 +6,20 @@ def safeExtGet(prop, fallback) {
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:4.2.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+    }
+}
+
+allprojects{
+    repositories {
+        jcenter()
+        google()
     }
 }
 
@@ -21,8 +29,11 @@ android {
     compileSdkVersion safeExtGet('compileSdkVersion', 28)
     buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
     defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 16)
+        minSdkVersion safeExtGet('minSdkVersion', 22)
         targetSdkVersion safeExtGet('targetSdkVersion', 28)
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a"
+        }
     }
 }
 
