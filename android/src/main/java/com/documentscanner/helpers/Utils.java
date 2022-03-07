@@ -88,8 +88,7 @@ public class Utils {
         String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
                 filePath.length());
 
-        if (AppConstant.FILE_EXTN
-                .contains(ext.toLowerCase(Locale.getDefault())))
+        if (AppConstant.FILE_EXTN.contains(ext.toLowerCase(Locale.getDefault())))
             return true;
         else
             return false;
@@ -101,8 +100,7 @@ public class Utils {
      */
     public int getScreenWidth() {
         int columnWidth;
-        WindowManager wm = (WindowManager) _context
-                .getSystemService(Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) _context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
 
         final Point point = new Point();
