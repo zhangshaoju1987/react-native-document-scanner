@@ -29,23 +29,16 @@ class PdfScanner extends React.Component {
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
       ]);
 
-      if (
-        granted["android.permission.READ_EXTERNAL_STORAGE"] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        granted["android.permission.WRITE_EXTERNAL_STORAGE"] ===
-          PermissionsAndroid.RESULTS.GRANTED
-      )
-        this.setState({ permissionsAuthorized: true });
-      else this.onPermissionsDenied();
+      if (granted["android.permission.READ_EXTERNAL_STORAGE"] === PermissionsAndroid.RESULTS.GRANTED && 
+          granted["android.permission.WRITE_EXTERNAL_STORAGE"] === PermissionsAndroid.RESULTS.GRANTED){
+            this.setState({ permissionsAuthorized: true });
+          }else{
+            this.onPermissionsDenied();
+          } 
     } catch (err) {
       this.onPermissionsDenied();
     }
   }
-
-  static defaultProps = {
-    onPictureTaken: () => {},
-    onProcessing: () => {}
-  };
 
   sendOnPictureTakenEvent(event) {
     return this.props.onPictureTaken(event.nativeEvent);
@@ -81,11 +74,15 @@ class PdfScanner extends React.Component {
 
   capture() {
     // NativeModules.RNPdfScannerManager.capture();
-    if (this.state.permissionsAuthorized) CameraManager.capture();
+    if (this.state.permissionsAuthorized){
+      CameraManager.capture();
+    }
   }
 
   render() {
-    if (!this.state.permissionsAuthorized) return null;
+    if (!this.state.permissionsAuthorized) {
+      return null
+    }
     return (
       <RNPdfScanner
         {...this.props}
