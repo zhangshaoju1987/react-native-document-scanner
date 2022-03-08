@@ -19,6 +19,11 @@ class PdfScanner extends React.Component {
 
   componentDidMount() {
     this.getAndroidPermissions();
+    if (Platform.OS === "android") {
+      const { onPictureTaken, onProcessing } = this.props;
+      DeviceEventEmitter.addListener("onPictureTaken", onPictureTaken);
+      DeviceEventEmitter.addListener("onProcessingChange", onProcessing);
+    }
   }
 
   async getAndroidPermissions() {
@@ -54,14 +59,6 @@ class PdfScanner extends React.Component {
     if (this.props.quality > 1) return 1;
     if (this.props.quality < 0.1) return 0.1;
     return this.props.quality;
-  }
-
-  componentWillMount() {
-    if (Platform.OS === "android") {
-      const { onPictureTaken, onProcessing } = this.props;
-      DeviceEventEmitter.addListener("onPictureTaken", onPictureTaken);
-      DeviceEventEmitter.addListener("onProcessingChange", onProcessing);
-    }
   }
 
   componentWillUnmount() {
