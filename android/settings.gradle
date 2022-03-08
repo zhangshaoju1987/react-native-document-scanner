@@ -1,4 +1,1 @@
 rootProject.name = 'documentscanner'
-
-include ':openCVLibrary310'
-project(':openCVLibrary310').projectDir = new File(rootProject.projectDir,'openCVLibrary310')
