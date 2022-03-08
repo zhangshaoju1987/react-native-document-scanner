@@ -14,9 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by andre on 28/11/2017.
- */
 
 public class DocumentScannerPackage implements ReactPackage {
 

@@ -1,7 +1,7 @@
 {
   "name": "@zhumi/react-native-document-scanner",
-  "description": "Scan documents, automatic border detection, automatic crop",
-  "version": "2.0.4",
+  "description": "Scan documents, automatic border detection, automatic and mannual crop",
+  "version": "2.0.5",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,6 +25,7 @@
     "react-native": ">=0.60.0"
   },
   "dependencies": {
-    "react": "16.13.1"
+    "react": "16.13.1",
+    "react-native-svg": "^12.3.0"
   }
 }
