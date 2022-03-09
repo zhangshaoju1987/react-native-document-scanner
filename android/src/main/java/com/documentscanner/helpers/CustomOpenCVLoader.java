@@ -25,9 +25,6 @@ import com.documentscanner.R;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
-/**
- * Created by allgood on 22/02/16.
- */
 public class CustomOpenCVLoader extends OpenCVLoader {
 
     private static ServiceConnection dummyServiceConnection = new ServiceConnection() {

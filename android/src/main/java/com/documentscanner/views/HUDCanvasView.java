@@ -9,11 +9,6 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-/**
- * Draw an array of shapes on a canvas
- *
- * @author <Claudemir Todo Bom> http://todobom.com
- */
 public class HUDCanvasView extends View {
 
     private ArrayList<HUDShape> shapes = new ArrayList<>();

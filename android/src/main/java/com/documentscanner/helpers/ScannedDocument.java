@@ -7,9 +7,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 
-/**
- * Created by allgood on 05/03/16.
- */
 public class ScannedDocument {
 
     public Mat original;

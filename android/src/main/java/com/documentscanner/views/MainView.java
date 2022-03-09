@@ -7,10 +7,6 @@ import android.widget.FrameLayout;
 
 import com.documentscanner.R;
 
-/**
- * Created by andre on 09/01/2018.
- */
-
 public class MainView extends FrameLayout {
     private OpenNoteCameraView view = null;
     private FrameLayout frameLayout = null;
