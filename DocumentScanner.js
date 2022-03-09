@@ -1,5 +1,5 @@
 import React from "react";
-import {requireNativeComponent,NativeModules,Platform,PermissionsAndroid,DeviceEventEmitter} from "react-native";
+import {requireNativeComponent,NativeModules,Platform,PermissionsAndroid,DeviceEventEmitter,View} from "react-native";
 import PropTypes from "prop-types";
 
 const RNPdfScanner = requireNativeComponent("RNPdfScanner");
