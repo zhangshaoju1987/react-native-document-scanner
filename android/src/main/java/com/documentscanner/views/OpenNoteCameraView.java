@@ -658,18 +658,11 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
             folder.mkdirs();
             Log.d(TAG, "wrote: created folder " + folder.getPath());
         }
-        fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/" + UUID.randomUUID()
-                + ".jpg";
-
-        Mat endDoc = new Mat(Double.valueOf(doc.size().width).intValue(), Double.valueOf(doc.size().height).intValue(),
-                CvType.CV_8UC4);
-
+        fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/" + UUID.randomUUID() + ".jpg";
+        Mat endDoc = new Mat(Double.valueOf(doc.size().width).intValue(), Double.valueOf(doc.size().height).intValue(), CvType.CV_8UC4);
         Core.flip(doc.t(), endDoc, 1);
-
         Imgcodecs.imwrite(fileName, endDoc);
-
         endDoc.release();
-
         return fileName;
     }
 
