@@ -2,7 +2,7 @@ import React from "react";
 import {requireNativeComponent,NativeModules,View,Platform,PermissionsAndroid,DeviceEventEmitter} from "react-native";
 import PropTypes from "prop-types";
 
-const RNPdfScanner = requireNativeComponent("RNPdfScanner", PdfScanner);
+const RNPdfScanner = requireNativeComponent("RNPdfScanner");
 const CameraManager = NativeModules.RNPdfScannerManager || {};
 
 /**

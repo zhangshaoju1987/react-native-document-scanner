@@ -1,7 +1,7 @@
 {
   "name": "@zhumi/react-native-document-scanner",
   "description": "Scan documents, automatic border detection, automatic or mannual crop",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
