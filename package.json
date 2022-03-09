@@ -27,7 +27,7 @@
     "react-native": ">=0.60.0"
   },
   "dependencies": {
-    "react": "16.13.1",
+    "react": "^16.13.1",
     "react-native-svg": "^12.3.0"
   }
 }

@@ -147,8 +147,7 @@ public class DocumentScannerViewManager extends ViewGroupManager<MainView> {
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
 
-        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio, bl.x * ratio,
-                bl.y * ratio);
+        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio, bl.x * ratio, bl.y * ratio);
         dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
 
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
