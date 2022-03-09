@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.name          = "react-native-document-scanner"
   s.version       = package["version"]
   s.summary       = package["description"]
-  s.homepage      = "https://github.com/Michaelvilleneuve/react-native-document-scanner"
+  s.homepage      = "https://github.com/zhangshaoju1987/react-native-document-scanner"
   s.license       = package["license"]
   s.authors       = package["author"]
   s.platform      = :ios, "9.0"
