@@ -7,7 +7,7 @@ const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
 /**
  * 基于四个矩形点进行裁剪,获取到精准的文档图片
  */
-export default class DocumentCrop extends Component {
+export default class DocumentCropper extends Component {
     constructor(props) {
         super(props);
         this.state = {
