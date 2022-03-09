@@ -1,6 +1,6 @@
 {
   "name": "@zhumi/react-native-document-scanner",
-  "description": "Scan documents, automatic border detection, automatic or mannual crop",
+  "description": "文档扫描,边界检测,自动或者手动裁剪",
   "version": "2.1.1",
   "main": "index.js",
   "scripts": {
