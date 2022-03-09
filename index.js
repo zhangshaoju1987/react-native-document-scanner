@@ -1,4 +1,4 @@
 import DocumentScanner from "./DocumentScanner";
 import DocumentCrop from "./DocumentCrop";
 
-export default {DocumentScanner,DocumentCrop}
+export {DocumentScanner,DocumentCrop}
