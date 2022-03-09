@@ -1,6 +1,5 @@
 import React from "react";
-import {requireNativeComponent,NativeModules,View,Platform,PermissionsAndroid,DeviceEventEmitter} from "react-native";
-import PropTypes from "prop-types";
+import {requireNativeComponent,NativeModules,Platform,PermissionsAndroid,DeviceEventEmitter} from "react-native";
 
 const RNPdfScanner = requireNativeComponent("RNPdfScanner");
 const CameraManager = NativeModules.RNPdfScannerManager || {};
@@ -58,7 +57,7 @@ export default class DocumentScanner extends React.Component {
   }
 
   getImageQuality() {
-    if (!this.props.quality) return 0.8;
+    if (!this.props.quality) return 1;
     if (this.props.quality > 1) return 1;
     if (this.props.quality < 0.1) return 0.1;
     return this.props.quality;
@@ -103,21 +102,3 @@ export default class DocumentScanner extends React.Component {
     );
   }
 }
-
-PdfScanner.propTypes = {
-  onPictureTaken: PropTypes.func,
-  onRectangleDetect: PropTypes.func,
-  overlayColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  enableTorch: PropTypes.bool,
-  useFrontCam: PropTypes.bool,
-  saturation: PropTypes.number,
-  brightness: PropTypes.number,
-  contrast: PropTypes.number,
-  detectionCountBeforeCapture: PropTypes.number,
-  detectionRefreshRateInMS: PropTypes.number,
-  quality: PropTypes.number,
-  documentAnimation: PropTypes.bool,
-  noGrayScale: PropTypes.bool,
-  manualOnly: PropTypes.bool,
-  ...View.propTypes // include the default view properties
-};
