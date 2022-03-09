@@ -88,6 +88,10 @@ public class MainView extends FrameLayout {
         view.setManualOnly(manualOnly);
     }
 
+    public void setUseBase64(boolean useBase64) {
+        view.setUseBase64(useBase64);
+    }
+
     public void setRemoveGrayScale(boolean grayscale) {
         view.setRemoveGrayScale(grayscale);
     }

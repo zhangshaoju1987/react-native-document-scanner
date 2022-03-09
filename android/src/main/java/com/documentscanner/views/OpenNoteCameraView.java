@@ -64,6 +64,7 @@ import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -120,6 +121,7 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
     private View blinkView = null;
     private View mView = null;
     private boolean manualCapture = false;
+    private boolean useBase64 = false;
 
     public static OpenNoteCameraView mThis;
 
@@ -199,6 +201,10 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
 
     public void setManualOnly(boolean manualOnly) {
         this.manualCapture = manualOnly;
+    }
+
+    public void setUseBase64(boolean useBase64) {
+        this.useBase64 = useBase64;
     }
 
     public void setBrightness(double brightness) {
@@ -666,6 +672,30 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
         return fileName;
     }
 
+    /**
+     * 文件输出为base64
+     * @param path
+     * @return
+     */
+    private static String file2Base64(String path){
+        try{
+            File f = new File(path);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            FileInputStream in = new FileInputStream(f);
+            int len = -1;
+            int size = (int)f.length();// 图片一般大小可控,一次性读取到位
+            byte [] content = new byte[size];
+            while((len = in.read(content,0,size)) != -1){
+                out.write(content,0,len);
+            }
+            in.close();
+            return Base64.encodeToString(out.toByteArray(),Base64.DEFAULT);
+        }catch (Exception e){
+            e.printStackTrace();
+            return "";
+        }
+    }
+
     public void saveDocument(ScannedDocument scannedDocument) {
 
         Mat doc = (scannedDocument.processed != null) ? scannedDocument.processed : scannedDocument.original;
@@ -682,8 +712,14 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
         if (this.listener != null) {
             data.putInt("height", scannedDocument.heightWithRatio);
             data.putInt("width", scannedDocument.widthWithRatio);
-            data.putString("croppedImage", "file://" + fileName);
-            data.putString("initialImage", "file://" + initialFileName);
+            if(this.useBase64){
+                // 存放base64格式的文件
+                data.putString("croppedImage", file2Base64(fileName));
+                data.putString("initialImage", file2Base64(initialFileName));
+            }else{
+                data.putString("croppedImage", "file://" + fileName);
+                data.putString("initialImage", "file://" + initialFileName);
+            }
             data.putMap("rectangleCoordinates", scannedDocument.previewPointsAsHash());
 
             this.listener.onPictureTaken(data);

@@ -88,6 +88,11 @@ public class DocumentScannerViewManager extends ViewGroupManager<MainView> {
         view.setEnableTorch(enable);
     }
 
+    @ReactProp(name = "useBase64", defaultBoolean = false)
+    public void setUseBase64(MainView view, Boolean useBase64) {
+        view.setUseBase64(useBase64);
+    }
+
     @ReactProp(name = "manualOnly", defaultBoolean = false)
     public void setManualOnly(MainView view, Boolean manualOnly) {
         view.setManualOnly(manualOnly);
@@ -107,6 +112,8 @@ public class DocumentScannerViewManager extends ViewGroupManager<MainView> {
     public void setRemoveGrayScale(MainView view, boolean bw) {
         view.setRemoveGrayScale(bw);
     }
+
+
 
 
     @ReactMethod
