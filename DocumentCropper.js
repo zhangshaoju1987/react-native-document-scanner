@@ -115,7 +115,7 @@ export default class DocumentCropper extends Component {
             height: this.state.height,
             width: this.state.width,
         };
-        NativeModules.RNPdfScanner.crop(
+        NativeModules.RNPdfScannerManager.crop(
             coordinates,
             this.state.image,
             (err, res) => this.props.updateImage(res.image, coordinates),
