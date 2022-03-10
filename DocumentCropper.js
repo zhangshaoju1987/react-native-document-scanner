@@ -50,7 +50,7 @@ export default class DocumentCropper extends Component {
                     dx: corner.x,
                     dy: corner.y,
                 },
-            ],{ useNativeDriver: true }),
+            ],{ useNativeDriver: false }),
             onPanResponderRelease: () => {
                 corner.flattenOffset();
                 this.updateOverlayString();
@@ -106,12 +106,12 @@ export default class DocumentCropper extends Component {
 
         if(label == "topLeft"){
             // RN中的尺寸单位为dp，而设计稿中的单位为px
-            console.log("原始图片大小",this.state.width,this.state.height,PixelRatio.roundToNearestPixel(this.state.width));
-            console.log("Dimensions.get('window').",Dimensions.get('window').scale);
-            console.log("转换比例",imageW/this.state.viewWidth,imageH/this.state.viewHeight);
-            console.log("转换前,角点位置",label,corner);
-            console.log("转换后,角点位置",label,newCorner);
-            console.log("PixelRatio=",PixelRatio.get(),"FontScale=",PixelRatio.getFontScale())
+            // console.log("原始图片大小",this.state.width,this.state.height,PixelRatio.roundToNearestPixel(this.state.width));
+            // console.log("Dimensions.get('window').",Dimensions.get('window').scale);
+            // console.log("转换比例",imageW/this.state.viewWidth,imageH/this.state.viewHeight);
+            // console.log("转换前,角点位置",label,corner);
+            // console.log("转换后,角点位置",label,newCorner);
+            // console.log("PixelRatio=",PixelRatio.get(),"FontScale=",PixelRatio.getFontScale())
         }
         
         return newCorner;
@@ -130,10 +130,10 @@ export default class DocumentCropper extends Component {
             x: Math.ceil((corner.x._value * this.state.viewWidth) /imageW),
             y: Math.ceil((corner.y._value * this.state.viewHeight)/ imageH),
         };
-        if(label == "topLeft"){
-            console.log("----------转换前,角点位置",label,corner);
-            console.log("----------转换后,角点位置",label,newCorner);
-        }
+        // if(label == "topLeft"){
+        //     console.log("----------转换前,角点位置",label,corner);
+        //     console.log("----------转换后,角点位置",label,newCorner);
+        // }
         return newCorner;
     }
 
