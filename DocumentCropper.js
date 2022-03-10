@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import {NativeModules,PanResponder,Dimensions,Image,View,Animated} from 'react-native';
+import {NativeModules,PanResponder,Dimensions,Image,View,Animated,PixelRatio} from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
-
+const viewWidth =  Dimensions.get('window').width;
 /**
  * 基于四个矩形点进行裁剪,获取到精准的文档图片
  */
@@ -11,72 +11,34 @@ export default class DocumentCropper extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            viewHeight:Dimensions.get('window').width * (props.height / props.width),
+            viewWidth,
+            viewHeight:viewWidth * (props.height / props.width), // 按实际的图片的宽高比例进行展示
             height: props.height,
             width: props.width,
             image: props.initialImage,
             moving: false,
         };
-
+        const cornerPoint = props.rectangleCoordinates;// 四个角点
         this.state = {
             ...this.state,
-            topLeft: new Animated.ValueXY(
-                props.rectangleCoordinates
-                    ? this.imageCoordinatesToViewCoordinates(
-                            props.rectangleCoordinates.topLeft,
-                            true,
-                      )
-                    : { x: 100, y: 100 },
-            ),
-            topRight: new Animated.ValueXY(
-                props.rectangleCoordinates
-                    ? this.imageCoordinatesToViewCoordinates(
-                          props.rectangleCoordinates.topRight,
-                          true,
-                      )
-                    : { x: Dimensions.get('window').width - 100, y: 100 },
-            ),
-            bottomLeft: new Animated.ValueXY(
-                props.rectangleCoordinates
-                    ? this.imageCoordinatesToViewCoordinates(
-                          props.rectangleCoordinates.bottomLeft,
-                          true,
-                      )
-                    : { x: 100, y: this.state.viewHeight - 100 },
-            ),
-            bottomRight: new Animated.ValueXY(
-                props.rectangleCoordinates
-                    ? this.imageCoordinatesToViewCoordinates(
-                          props.rectangleCoordinates.bottomRight,
-                          true,
-                      )
-                    : {
-                          x: Dimensions.get('window').width - 100,
-                          y: this.state.viewHeight - 100,
-                      },
-            ),
+            topLeft: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.topLeft,"topLeft"): { x: 100, y: 100 }),
+            topRight: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.topRight,"topRight"): { x: viewWidth - 100, y: 100 }),
+            bottomLeft: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomLeft,"bottomLeft"): { x: 100, y: this.state.viewHeight - 100 },),
+            bottomRight: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomRight,"bottomRight"): {x: viewWidth - 100,y: this.state.viewHeight - 100})
         };
         this.state = {
             ...this.state,
-            overlayPositions: `${this.state.topLeft.x._value},${
-                this.state.topLeft.y._value
-            } ${this.state.topRight.x._value},${this.state.topRight.y._value} ${
-                this.state.bottomRight.x._value
-            },${this.state.bottomRight.y._value} ${
-                this.state.bottomLeft.x._value
-            },${this.state.bottomLeft.y._value}`,
+            overlayPositions: 
+            `${this.state.topLeft.x._value},${this.state.topLeft.y._value} 
+            ${this.state.topRight.x._value},${this.state.topRight.y._value} 
+            ${this.state.bottomRight.x._value},${this.state.bottomRight.y._value} 
+            ${this.state.bottomLeft.x._value},${this.state.bottomLeft.y._value}`,
         };
 
         this.panResponderTopLeft = this.createPanResponser(this.state.topLeft);
-        this.panResponderTopRight = this.createPanResponser(
-            this.state.topRight,
-        );
-        this.panResponderBottomLeft = this.createPanResponser(
-            this.state.bottomLeft,
-        );
-        this.panResponderBottomRight = this.createPanResponser(
-            this.state.bottomRight,
-        );
+        this.panResponderTopRight = this.createPanResponser(this.state.topRight);
+        this.panResponderBottomLeft = this.createPanResponser(this.state.bottomLeft);
+        this.panResponderBottomRight = this.createPanResponser(this.state.bottomRight);
     }
 
     createPanResponser(corner) {
@@ -88,7 +50,7 @@ export default class DocumentCropper extends Component {
                     dx: corner.x,
                     dy: corner.y,
                 },
-            ]),
+            ],{ useNativeDriver: true }),
             onPanResponderRelease: () => {
                 corner.flattenOffset();
                 this.updateOverlayString();
@@ -96,22 +58,16 @@ export default class DocumentCropper extends Component {
             onPanResponderGrant: () => {
                 corner.setOffset({ x: corner.x._value, y: corner.y._value });
                 corner.setValue({ x: 0, y: 0 });
-            },
+            }
         });
     }
 
     crop() {
         const coordinates = {
-            topLeft: this.viewCoordinatesToImageCoordinates(this.state.topLeft),
-            topRight: this.viewCoordinatesToImageCoordinates(
-                this.state.topRight,
-            ),
-            bottomLeft: this.viewCoordinatesToImageCoordinates(
-                this.state.bottomLeft,
-            ),
-            bottomRight: this.viewCoordinatesToImageCoordinates(
-                this.state.bottomRight,
-            ),
+            topLeft: this.viewCoordinatesToImageCoordinates(this.state.topLeft,"topLeft"),
+            topRight: this.viewCoordinatesToImageCoordinates(this.state.topRight,"topRight"),
+            bottomLeft: this.viewCoordinatesToImageCoordinates(this.state.bottomLeft,"bottomLeft"),
+            bottomRight: this.viewCoordinatesToImageCoordinates(this.state.bottomRight,"bottomRight"),
             height: this.state.height,
             width: this.state.width,
         };
@@ -124,30 +80,61 @@ export default class DocumentCropper extends Component {
 
     updateOverlayString() {
         this.setState({
-            overlayPositions: `${this.state.topLeft.x._value},${
-                this.state.topLeft.y._value
-            } ${this.state.topRight.x._value},${this.state.topRight.y._value} ${
-                this.state.bottomRight.x._value
-            },${this.state.bottomRight.y._value} ${
-                this.state.bottomLeft.x._value
-            },${this.state.bottomLeft.y._value}`,
+            overlayPositions: 
+            `${this.state.topLeft.x._value},${this.state.topLeft.y._value} 
+            ${this.state.topRight.x._value},${this.state.topRight.y._value} 
+            ${this.state.bottomRight.x._value},${this.state.bottomRight.y._value} 
+            ${this.state.bottomLeft.x._value},${this.state.bottomLeft.y._value}`,
         });
     }
+    /**
+     * 将图片点位缩放成容器支持的点位
+     * @param {*} corner 
+     * @param {*} label 
+     * @returns 
+     */
+    imageCoordinatesToViewCoordinates(corner,label) {
 
-    imageCoordinatesToViewCoordinates(corner) {
-        return {
-            x: (corner.x * Dimensions.get('window').width) / this.state.width,
-            y: (corner.y * this.state.viewHeight) / this.state.height,
+        // 图片的宽高,需要除以像素密度才能和屏幕宽度进行比较
+        // 需要把图片宽度像素转成dp才能进行比较
+        const imageW = this.state.width/(PixelRatio.get()/1.045);// 部分手机像素密度虚高，比如小米手机
+        const imageH = this.state.height/(PixelRatio.get()/1.045);
+        const newCorner = {
+            x: corner.x * (imageW/this.state.viewWidth ),
+            y: corner.y * (imageH/this.state.viewHeight)
         };
+
+        if(label == "topLeft"){
+            // RN中的尺寸单位为dp，而设计稿中的单位为px
+            console.log("原始图片大小",this.state.width,this.state.height,PixelRatio.roundToNearestPixel(this.state.width));
+            console.log("Dimensions.get('window').",Dimensions.get('window').scale);
+            console.log("转换比例",imageW/this.state.viewWidth,imageH/this.state.viewHeight);
+            console.log("转换前,角点位置",label,corner);
+            console.log("转换后,角点位置",label,newCorner);
+            console.log("PixelRatio=",PixelRatio.get(),"FontScale=",PixelRatio.getFontScale())
+        }
+        
+        return newCorner;
     }
+    /**
+     * 还原成真实的图片点位
+     * @param {*} corner 
+     * @returns 
+     */
+    viewCoordinatesToImageCoordinates(corner,label) {
 
-    viewCoordinatesToImageCoordinates(corner) {
-        return {
-            x:
-                (corner.x._value / Dimensions.get('window').width) *
-                this.state.width,
-            y: (corner.y._value / this.state.viewHeight) * this.state.height,
+        const imageW = this.state.width/(PixelRatio.get()/1.045);// 部分手机像素密度虚高，比如小米手机
+        const imageH = this.state.height/(PixelRatio.get()/1.045);
+
+        const newCorner = {
+            x: Math.ceil((corner.x._value * this.state.viewWidth) /imageW),
+            y: Math.ceil((corner.y._value * this.state.viewHeight)/ imageH),
         };
+        if(label == "topLeft"){
+            console.log("----------转换前,角点位置",label,corner);
+            console.log("----------转换后,角点位置",label,newCorner);
+        }
+        return newCorner;
     }
 
     render() {
