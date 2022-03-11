@@ -20,6 +20,9 @@ allprojects{
     repositories {
         mavenCentral()
         google()
+        flatDir {
+            dirs 'libs'
+        }
     }
 }
 
@@ -40,5 +43,5 @@ android {
 dependencies {
     implementation 'com.facebook.react:react-native:+'
     implementation 'com.google.zxing:core:3.0.1'
-    api fileTree(dir: 'libs', include: ['*.aar'])
+    implementation(name: 'OpenCV-release', ext: 'aar')
 }
