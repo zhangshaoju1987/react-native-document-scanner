@@ -3,7 +3,6 @@ import {requireNativeComponent,NativeModules,Platform,PermissionsAndroid,DeviceE
 import PropTypes from "prop-types";
 
 const RNPdfScanner = requireNativeComponent("RNPdfScanner");
-const CameraManager = NativeModules.RNPdfScannerManager || {};
 
 /**
  * 扫描照片,获取文档的边界点
@@ -77,7 +76,7 @@ export default class DocumentScanner extends React.Component {
 
   capture() {
     if (this.state.permissionsAuthorized){
-      CameraManager.capture();
+      NativeModules.RNPdfScannerManager.capture();
     }
   }
 
