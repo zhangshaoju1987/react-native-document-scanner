@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {NativeModules,PanResponder,Dimensions,Image,View,Animated,PixelRatio} from 'react-native';
+import {NativeModules,PanResponder,Dimensions,Image,View,Animated,PixelRatio, Platform} from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
@@ -101,12 +101,21 @@ export default class DocumentCropper extends Component {
         // 需要把图片宽度像素转成dp才能进行比较
         // 图片宽高一般以px为单位，而手机屏幕布局一般以dp为单位进行布局，需要借助于像素密度进行换算，统一宽高单位后才能进行缩放比例的计算
         const imageW = Math.round(this.state.width/realPixelRatio);
-        const imageH = Math.round(this.state.height/realPixelRatio);
         const scale = imageW/this.state.viewWidth;
-        const newCorner = {
-            x: corner.x /realPixelRatio/scale,//转换成dp单位的角点后再进行一次缩放
-            y: corner.y /realPixelRatio/scale
-        };
+
+        if(Platform.OS == "ios"){
+            return {
+                x: corner.x /realPixelRatio/scale,//转换成dp单位的角点后再进行一次缩放
+                y: corner.y /realPixelRatio/scale
+            };
+        }
+        
+        if(Platform.OS == "android"){
+            return {
+                x: corner.x * scale,
+                y: corner.y * scale
+            };
+        }
 
         // if(label == "topLeft"){
         //     // RN中的尺寸单位为dp，而设计稿中的单位为px
@@ -128,13 +137,22 @@ export default class DocumentCropper extends Component {
 
         const realPixelRatio = PixelRatio.get()/1.045;
         const imageW = Math.round(this.state.width/realPixelRatio);// 部分手机像素密度虚高，比如小米手机
-        const imageH = Math.round(this.state.height/realPixelRatio);
         const scale = imageW/this.state.viewWidth;
 
-        const newCorner = {
-            x: corner.x._value * scale*realPixelRatio, // 恢复成原始比例再转成原始像素
-            y: corner.y._value * scale*realPixelRatio,
-        };
+        if(Platform.OS == "ios"){
+            return {
+                x: corner.x._value * scale*realPixelRatio, // 恢复成原始比例再转成原始像素
+                y: corner.y._value * scale*realPixelRatio,
+            };
+        }
+
+        if(Platform.OS == "android"){
+            return {
+                x: corner.x._value / scale, // 恢复成原始比例再转成原始像素
+                y: corner.y._value / scale,
+            };
+        }
+        
         // if(label == "topLeft"){
         //     console.log("----------转换前,角点位置",label,corner);
         //     console.log("----------转换后,角点位置",label,newCorner);
