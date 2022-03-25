@@ -16,6 +16,7 @@ export default class DocumentCropper extends Component {
             height: props.height,
             width: props.width,
             image: props.initialImage,
+            imageSource:props.imageSource||"camera",    // 图片来源：相机或者图片 camera or image
             moving: false,
         };
         const cornerPoint = props.rectangleCoordinates;// 四个角点
@@ -111,20 +112,22 @@ export default class DocumentCropper extends Component {
         }
         
         if(Platform.OS == "android"){
+            const ratio = this.props.imageSource == "image"?500/this.state.viewWidth:1;
+            console.log("缩放_1 ratio",ratio);
             return {
-                x: corner.x * scale,
-                y: corner.y * scale
+                x: corner.x * scale * ratio,
+                y: corner.y * scale * ratio
             };
         }
 
-        // if(label == "topLeft"){
-        //     // RN中的尺寸单位为dp，而设计稿中的单位为px
-        //     console.log("原始图片大小",imageW,imageH,"像素密度",PixelRatio.get());
-        //     console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
-        //     console.log("缩小比例",scale);
-        //     console.log("转换前,角点位置",label,corner);
-        //     console.log("转换后,角点位置",label,newCorner);
-        // }
+        if(label == "topLeft"){
+            // RN中的尺寸单位为dp，而设计稿中的单位为px
+            console.log("原始图片宽度",imageW,this,"像素密度",PixelRatio.get());
+            console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
+            console.log("缩小比例",scale);
+            console.log("转换前,角点位置",label,corner);
+            console.log("转换后,角点位置",label,newCorner);
+        }
         
         return newCorner;
     }
@@ -147,16 +150,18 @@ export default class DocumentCropper extends Component {
         }
 
         if(Platform.OS == "android"){
+            const ratio = this.props.imageSource == "image" ? 500/this.state.viewWidth:1;
+            console.log("缩放_2 ratio",ratio);
             return {
-                x: corner.x._value / scale, // 恢复成原始比例再转成原始像素
-                y: corner.y._value / scale,
+                x: corner.x._value / scale / ratio, // 恢复成原始比例再转成原始像素
+                y: corner.y._value / scale / ratio,
             };
         }
         
-        // if(label == "topLeft"){
-        //     console.log("----------转换前,角点位置",label,corner);
-        //     console.log("----------转换后,角点位置",label,newCorner);
-        // }
+        if(label == "topLeft"){
+            console.log("----------转换前,角点位置",label,corner);
+            console.log("----------转换后,角点位置",label,newCorner);
+        }
         return newCorner;
     }
 
