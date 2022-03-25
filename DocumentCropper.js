@@ -119,6 +119,15 @@ export default class DocumentCropper extends Component {
                 x: corner.x /realPixelRatio/scale,//转换成dp单位的角点后再进行一次缩放
                 y: corner.y /realPixelRatio/scale
             };
+            if(label == "topLeft"){
+                // RN中的尺寸单位为dp，而设计稿中的单位为px
+                console.log("原始图片宽度",imageW,"像素密度",PixelRatio.get());
+                console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
+                console.log("缩小比例",scale);
+                console.log("原始角点位置",label,corner);
+                console.log("转换后,角点位置",label,newCorner);
+            }
+            return newCorner;
         }
         
         if(Platform.OS == "android" && this.imageSource != "image"){
@@ -127,16 +136,17 @@ export default class DocumentCropper extends Component {
                 x: corner.x * scale,
                 y: corner.y * scale
             };
+            if(label == "topLeft"){
+                // RN中的尺寸单位为dp，而设计稿中的单位为px
+                console.log("原始图片宽度",imageW,"像素密度",PixelRatio.get());
+                console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
+                console.log("缩小比例",scale);
+                console.log("原始角点位置",label,corner);
+                console.log("转换后,角点位置",label,newCorner);
+            }
+            return newCorner;
         }
-        if(label == "topLeft"){
-            // RN中的尺寸单位为dp，而设计稿中的单位为px
-            console.log("原始图片宽度",imageW,"像素密度",PixelRatio.get());
-            console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
-            console.log("缩小比例",scale);
-            console.log("原始角点位置",label,corner);
-            console.log("转换后,角点位置",label,newCorner);
-        }
-        return newCorner;
+       
     }
     /**
      * 还原成真实的图片点位
@@ -154,6 +164,11 @@ export default class DocumentCropper extends Component {
                 x: corner.x._value * scale * realPixelRatio, // 恢复成原始比例再转成原始像素
                 y: corner.y._value * scale * realPixelRatio,
             };
+            if(label == "topLeft"){
+                console.log("----------1当前角点位置",label,corner);
+                console.log("----------1恢复成原始角点位置",label,newCorner);
+            }
+            return newCorner;
         }
 
         if(Platform.OS == "android"  && this.imageSource != "image"){
@@ -162,12 +177,14 @@ export default class DocumentCropper extends Component {
                 x: corner.x._value / scale, // 恢复成原始比例再转成原始像素
                 y: corner.y._value / scale,
             };
+            if(label == "topLeft"){
+                console.log("----------2当前角点位置",label,corner);
+                console.log("----------2恢复成原始角点位置",label,newCorner);
+            }
+            return newCorner;
         }
-        if(label == "topLeft"){
-            console.log("----------当前角点位置",label,corner);
-            console.log("----------恢复成原始角点位置",label,newCorner);
-        }
-        return newCorner;
+       
+       
     }
 
     render() {
