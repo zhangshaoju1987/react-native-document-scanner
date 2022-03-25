@@ -20,8 +20,6 @@ import java.util.Comparator;
 
 public class Utils {
 
-    // 统一按高度500进行缩放,减少运算量
-    private static int fixHeight = 500;
     /**
      * 检测文档边界
      * @param inputRgba
@@ -33,9 +31,8 @@ public class Utils {
         sd.originalSize = inputRgba.size();
         Quadrilateral quad = getQuadrilateral(contours, sd.originalSize);
 
-        double ratio = sd.originalSize.height / fixHeight;
-        sd.heightWithRatio = Double.valueOf(sd.originalSize.width / ratio).intValue();
-        sd.widthWithRatio = Double.valueOf(sd.originalSize.height / ratio).intValue();
+        sd.heightWithRatio = Double.valueOf(sd.originalSize.width).intValue();
+        sd.widthWithRatio = Double.valueOf(sd.originalSize.height).intValue();
         Log.i("detectDocumentFromImage","缩放图片尺寸"+sd.widthWithRatio+""+sd.heightWithRatio);
         sd.originalPoints = new Point[4];
         sd.originalPoints[0] = quad.points[0]; // Topleft
@@ -53,9 +50,8 @@ public class Utils {
      */
     private static Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
 
-        double ratio = srcSize.height / fixHeight;
-        int height = Double.valueOf(srcSize.height / ratio).intValue();
-        int width = Double.valueOf(srcSize.width / ratio).intValue();
+        int height = Double.valueOf(srcSize.height).intValue();
+        int width = Double.valueOf(srcSize.width).intValue();
         Size size = new Size(width, height);
 
         Log.i("COUCOU", "Size----->" + size);
@@ -149,9 +145,8 @@ public class Utils {
         Mat cannedImage = null;
         Mat resizedImage = null;
 
-        double ratio = src.size().height / fixHeight;
-        int height = Double.valueOf(src.size().height / ratio).intValue();
-        int width = Double.valueOf(src.size().width / ratio).intValue();
+        int height = Double.valueOf(src.size().height).intValue();
+        int width = Double.valueOf(src.size().width).intValue();
         Size size = new Size(width, height);
 
         resizedImage = new Mat(size, CvType.CV_8UC4);

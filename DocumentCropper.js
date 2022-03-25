@@ -73,11 +73,20 @@ export default class DocumentCropper extends Component {
             height: this.state.height,
             width: this.state.width,
         };
-        NativeModules.RNPdfScannerManager.crop(
-            coordinates,
-            this.state.image,
-            (err, res) => this.props.updateImage(res.image, coordinates),
-        );
+        if(this.imageSource == "image"){
+            NativeModules.RNPdfScannerManager.cropImage(
+                coordinates,
+                this.state.image,
+                (err, res) => this.props.updateImage(res.image, coordinates),
+            );
+        }else{
+            NativeModules.RNPdfScannerManager.crop(
+                coordinates,
+                this.state.image,
+                (err, res) => this.props.updateImage(res.image, coordinates),
+            );
+        }
+        
     }
 
     updateOverlayString() {
@@ -105,7 +114,7 @@ export default class DocumentCropper extends Component {
         const imageW = this.state.width/realPixelRatio;
         const scale = imageW/this.state.viewWidth;
         let newCorner = {};
-        if(Platform.OS == "ios"){
+        if(Platform.OS == "ios" || this.imageSource == "image"){
             newCorner = {
                 x: corner.x /realPixelRatio/scale,//转换成dp单位的角点后再进行一次缩放
                 y: corner.y /realPixelRatio/scale
@@ -113,11 +122,10 @@ export default class DocumentCropper extends Component {
         }
         
         if(Platform.OS == "android"){
-            const ratio = this.imageSource == "image"?parseInt(500/this.state.viewWidth*10)/10:1;
             //console.log("缩放_1 ratio",ratio);
             newCorner = {
-                x: corner.x * scale * ratio,
-                y: corner.y * scale * ratio
+                x: corner.x * scale,
+                y: corner.y * scale
             };
         }
         if(label == "topLeft"){
@@ -141,20 +149,18 @@ export default class DocumentCropper extends Component {
         const imageW = this.state.width/realPixelRatio;// 部分手机像素密度虚高，比如小米手机
         const scale = imageW/this.state.viewWidth;
         let newCorner = {};
-        if(Platform.OS == "ios"){
+        if(Platform.OS == "ios" || this.imageSource == "image"){
             newCorner = {
-                x: corner.x._value * scale*realPixelRatio, // 恢复成原始比例再转成原始像素
-                y: corner.y._value * scale*realPixelRatio,
+                x: corner.x._value * scale * realPixelRatio, // 恢复成原始比例再转成原始像素
+                y: corner.y._value * scale * realPixelRatio,
             };
         }
 
         if(Platform.OS == "android"){
-            const ratio = this.imageSource == "image"?parseInt(500/this.state.viewWidth*10)/10:1;
             //console.log("缩放_2 ratio",ratio);
-            
             newCorner = {
-                x: corner.x._value / scale / ratio, // 恢复成原始比例再转成原始像素
-                y: corner.y._value / scale / ratio,
+                x: corner.x._value / scale, // 恢复成原始比例再转成原始像素
+                y: corner.y._value / scale,
             };
         }
         if(label == "topLeft"){
