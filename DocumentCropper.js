@@ -16,7 +16,7 @@ export default class DocumentCropper extends Component {
             height: props.height,
             width: props.width,
             image: props.initialImage,
-            imageSource:props.imageSource||"camera",    // 图片来源：相机或者图片 camera or image
+            imageSource:props.imageSource||"camera",    // 图像来源：相机或者图片 camera or image
             moving: false,
         };
         const cornerPoint = props.rectangleCoordinates;// 四个角点
