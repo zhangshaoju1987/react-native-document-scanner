@@ -64,6 +64,33 @@ public class ScannedDocument {
         return rectangleCoordinates;
     }
 
+    public WritableMap getPoints() {
+        WritableMap rectangleCoordinates = new WritableNativeMap();
+
+        WritableMap topLeft = new WritableNativeMap();
+        topLeft.putDouble("x", this.originalPoints[0].x);
+        topLeft.putDouble("y", this.originalPoints[0].y);
+
+        WritableMap topRight = new WritableNativeMap();
+        topRight.putDouble("x", this.originalPoints[1].x);
+        topRight.putDouble("y", this.originalPoints[1].y);
+
+        WritableMap bottomRight = new WritableNativeMap();
+        bottomRight.putDouble("x", this.originalPoints[2].x);
+        bottomRight.putDouble("y", this.originalPoints[2].y);
+
+        WritableMap bottomLeft = new WritableNativeMap();
+        bottomLeft.putDouble("x", this.originalPoints[3].x);
+        bottomLeft.putDouble("y", this.originalPoints[3].y);
+
+        rectangleCoordinates.putMap("topLeft", topLeft);
+        rectangleCoordinates.putMap("topRight", topRight);
+        rectangleCoordinates.putMap("bottomRight", bottomRight);
+        rectangleCoordinates.putMap("bottomLeft", bottomLeft);
+
+        return rectangleCoordinates;
+    }
+
     public void release() {
         if (processed != null) {
             processed.release();

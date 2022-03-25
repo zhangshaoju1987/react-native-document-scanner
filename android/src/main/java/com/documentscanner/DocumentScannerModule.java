@@ -3,6 +3,7 @@ package com.documentscanner;
 import android.graphics.Bitmap;
 import android.util.Base64;
 
+import com.documentscanner.helpers.ScannedDocument;
 import com.documentscanner.views.MainView;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -12,6 +13,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
+
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -20,6 +22,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
+
 
 public class DocumentScannerModule extends ReactContextBaseJavaModule{
 
@@ -38,6 +41,30 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         MainView view = MainView.getInstance();
         view.capture();
     }
+
+    /**
+     * 单独检测文档边界
+     * @param imageUri
+     * @param callback
+     */
+    @ReactMethod
+    public void detectDocument(String imageUri, Callback callback) {
+
+        Mat picture = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        Mat inputRgba = Imgcodecs.imdecode(picture, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
+        picture.release();
+        ScannedDocument sd = com.documentscanner.Utils.detectDocument(inputRgba);
+        WritableMap map = sd.getPoints();
+        callback.invoke(null, map);
+        inputRgba.release();
+    }
+
+    /**
+     * 按边界进行裁剪
+     * @param points
+     * @param imageUri
+     * @param callback
+     */
     @ReactMethod
     public void crop(ReadableMap points, String imageUri, Callback callback) {
 

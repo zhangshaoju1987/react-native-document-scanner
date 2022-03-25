@@ -189,6 +189,30 @@ public class ImageProcessor extends Handler {
 
     }
 
+    /**
+     * 检测文档边界
+     * @param inputRgba
+     */
+    public static ScannedDocument detectDocumentPoints(Mat inputRgba){
+
+        ArrayList<MatOfPoint> contours = findContours(inputRgba);
+        ScannedDocument sd = new ScannedDocument(inputRgba);
+        sd.originalSize = inputRgba.size();
+        Quadrilateral quad = getQuadrilateral(contours, sd.originalSize);
+        double ratio = sd.originalSize.height / 500;
+        sd.heightWithRatio = Double.valueOf(sd.originalSize.width / ratio).intValue();
+        sd.widthWithRatio = Double.valueOf(sd.originalSize.height / ratio).intValue();
+
+        sd.originalPoints = new Point[4];
+        sd.originalPoints[0] = new Point(sd.widthWithRatio - quad.points[3].y, quad.points[3].x); // Topleft
+        sd.originalPoints[1] = new Point(sd.widthWithRatio - quad.points[0].y, quad.points[0].x); // TopRight
+        sd.originalPoints[2] = new Point(sd.widthWithRatio - quad.points[1].y, quad.points[1].x); // BottomRight
+        sd.originalPoints[3] = new Point(sd.widthWithRatio - quad.points[2].y, quad.points[2].x); // BottomLeft
+        return sd;
+    }
+
+
+
     private ScannedDocument detectDocument(Mat inputRgba) {
         ArrayList<MatOfPoint> contours = findContours(inputRgba);
 
@@ -311,7 +335,7 @@ public class ImageProcessor extends Handler {
 
     }
 
-    private Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
+    private static Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
 
         double ratio = srcSize.height / 500;
         int height = Double.valueOf(srcSize.height / ratio).intValue();
@@ -341,7 +365,7 @@ public class ImageProcessor extends Handler {
         return null;
     }
 
-    private Point[] sortPoints(Point[] src) {
+    private static Point[] sortPoints(Point[] src) {
 
         ArrayList<Point> srcPoints = new ArrayList<>(Arrays.asList(src));
 
@@ -377,7 +401,7 @@ public class ImageProcessor extends Handler {
         return result;
     }
 
-    private boolean insideArea(Point[] rp, Size size) {
+    private static boolean insideArea(Point[] rp, Size size) {
 
         int width = Double.valueOf(size.width).intValue();
         int height = Double.valueOf(size.height).intValue();
@@ -447,7 +471,7 @@ public class ImageProcessor extends Handler {
         src.put(0, 0, d);
     }
 
-    private Mat fourPointTransform(Mat src, Point[] pts) {
+    private static Mat fourPointTransform(Mat src, Point[] pts) {
 
         double ratio = src.size().height / 500;
         int height = Double.valueOf(src.size().height / ratio).intValue();
@@ -486,7 +510,7 @@ public class ImageProcessor extends Handler {
         return doc;
     }
 
-    private ArrayList<MatOfPoint> findContours(Mat src) {
+    private static ArrayList<MatOfPoint> findContours(Mat src) {
 
         Mat grayImage = null;
         Mat cannedImage = null;
