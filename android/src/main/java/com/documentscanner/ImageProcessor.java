@@ -116,35 +116,35 @@ public class ImageProcessor extends Handler {
 
     private void processPreviewFrame(PreviewFrame previewFrame) {
 
-        Result[] results = {};
+//      Result[] results = {};
 
         Mat frame = previewFrame.getFrame();
 
-        try {
-            results = zxing(frame);
-        } catch (ChecksumException | FormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        try {
+//            results = zxing(frame);
+//        } catch (ChecksumException | FormatException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
 
-        boolean qrOk = false;
-        String currentQR = null;
-
-        for (Result result : results) {
-            String qrText = result.getText();
-            if (Utils.isMatch(qrText, "^P.. V.. S[0-9]+") && checkQR(qrText)) {
-                Log.d(TAG, "QR Code valid: " + result.getText());
-                qrOk = true;
-                currentQR = qrText;
-                qrResultPoints = result.getResultPoints();
-                break;
-            } else {
-                Log.d(TAG, "QR Code ignored: " + result.getText());
-            }
-        }
-
-        boolean autoMode = previewFrame.isAutoMode();
-        boolean previewOnly = previewFrame.isPreviewOnly();
+//        boolean qrOk = false;
+//        String currentQR = null;
+//
+//        for (Result result : results) {
+//            String qrText = result.getText();
+//            if (Utils.isMatch(qrText, "^P.. V.. S[0-9]+") && checkQR(qrText)) {
+//                Log.d(TAG, "QR Code valid: " + result.getText());
+//                qrOk = true;
+//                currentQR = qrText;
+//                qrResultPoints = result.getResultPoints();
+//                break;
+//            } else {
+//                Log.d(TAG, "QR Code ignored: " + result.getText());
+//            }
+//        }
+//
+//        boolean autoMode = previewFrame.isAutoMode();
+//        boolean previewOnly = previewFrame.isPreviewOnly();
         boolean focused = mMainActivity.isFocused();
 
         if (detectPreviewDocument(frame) && focused) {

@@ -19,31 +19,41 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class Utils {
+
+    // 统一按高度500进行缩放,减少运算量
+    private static int fixHeight = 500;
     /**
      * 检测文档边界
      * @param inputRgba
      */
-    public static ScannedDocument detectDocument(Mat inputRgba){
+    public static ScannedDocument detectDocumentFromImage(Mat inputRgba){
 
         ArrayList<MatOfPoint> contours = findContours(inputRgba);
         ScannedDocument sd = new ScannedDocument(inputRgba);
         sd.originalSize = inputRgba.size();
         Quadrilateral quad = getQuadrilateral(contours, sd.originalSize);
-        double ratio = sd.originalSize.height / 500;
+
+        double ratio = sd.originalSize.height / fixHeight;
         sd.heightWithRatio = Double.valueOf(sd.originalSize.width / ratio).intValue();
         sd.widthWithRatio = Double.valueOf(sd.originalSize.height / ratio).intValue();
-
+        Log.i("detectDocumentFromImage","缩放图片尺寸"+sd.widthWithRatio+""+sd.heightWithRatio);
         sd.originalPoints = new Point[4];
-        sd.originalPoints[0] = new Point(sd.widthWithRatio - quad.points[3].y, quad.points[3].x); // Topleft
-        sd.originalPoints[1] = new Point(sd.widthWithRatio - quad.points[0].y, quad.points[0].x); // TopRight
-        sd.originalPoints[2] = new Point(sd.widthWithRatio - quad.points[1].y, quad.points[1].x); // BottomRight
-        sd.originalPoints[3] = new Point(sd.widthWithRatio - quad.points[2].y, quad.points[2].x); // BottomLeft
+        sd.originalPoints[0] = quad.points[0]; // Topleft
+        sd.originalPoints[1] = quad.points[1]; // TopRight
+        sd.originalPoints[2] = quad.points[2]; // BottomRight
+        sd.originalPoints[3] = quad.points[3]; // BottomLeft
         return sd;
     }
 
+    /**
+     * 提取四边形轮廓
+     * @param contours  原始图片上的轮廓列表
+     * @param srcSize   原始图片尺寸
+     * @return
+     */
     private static Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
 
-        double ratio = srcSize.height / 500;
+        double ratio = srcSize.height / fixHeight;
         int height = Double.valueOf(srcSize.height / ratio).intValue();
         int width = Double.valueOf(srcSize.width / ratio).intValue();
         Size size = new Size(width, height);
@@ -51,32 +61,33 @@ public class Utils {
         Log.i("COUCOU", "Size----->" + size);
         for (MatOfPoint c : contours) {
             MatOfPoint2f c2f = new MatOfPoint2f(c.toArray());
-            double peri = Imgproc.arcLength(c2f, true);
+            double peri = Imgproc.arcLength(c2f, true);// 计算弧度
             MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(c2f, approx, 0.02 * peri, true);
-
+            Imgproc.approxPolyDP(c2f, approx, 0.02 * peri, true);// 通过轮廓近似获取角点
             Point[] points = approx.toArray();
-
-            // select biggest 4 angles polygon
-            // if (points.length == 4) {
-            Point[] foundPoints = sortPoints(points);
+            Point[] foundPoints = fetchPoints(points);
 
             if (insideArea(foundPoints, size)) {
-
                 return new Quadrilateral(c, foundPoints);
             }
-            // }
         }
 
         return null;
     }
 
-    private static Point[] sortPoints(Point[] src) {
+    /**
+     * 获取四边形的4个点(基于四边形规律进行优选)
+     * @param src
+     * @return
+     */
+    private static Point[] fetchPoints(Point[] src) {
 
         ArrayList<Point> srcPoints = new ArrayList<>(Arrays.asList(src));
-
         Point[] result = { null, null, null, null };
 
+        /**
+         * 获取右下角的点
+         */
         Comparator<Point> sumComparator = new Comparator<Point>() {
             @Override
             public int compare(Point lhs, Point rhs) {
@@ -91,17 +102,16 @@ public class Utils {
                 return Double.valueOf(lhs.y - lhs.x).compareTo(rhs.y - rhs.x);
             }
         };
-
-        // top-left corner = minimal sum
+        // top-left corner =  和值最小
         result[0] = Collections.min(srcPoints, sumComparator);
 
-        // bottom-right corner = maximal sum
-        result[2] = Collections.max(srcPoints, sumComparator);
-
-        // top-right corner = minimal diference
+        // top-right corner = 差值最小
         result[1] = Collections.min(srcPoints, diffComparator);
 
-        // bottom-left corner = maximal diference
+        // bottom-right corner = 和值最大
+        result[2] = Collections.max(srcPoints, sumComparator);
+
+        // bottom-left corner = 差值最大
         result[3] = Collections.max(srcPoints, diffComparator);
 
         return result;
@@ -109,8 +119,6 @@ public class Utils {
     private static boolean insideArea(Point[] rp, Size size) {
 
         int width = Double.valueOf(size.width).intValue();
-        int height = Double.valueOf(size.height).intValue();
-
         int minimumSize = width / 10;
 
         boolean isANormalShape = rp[0].x != rp[1].x && rp[1].y != rp[0].y && rp[2].y != rp[3].y && rp[3].x != rp[2].x;
@@ -129,13 +137,19 @@ public class Utils {
 
         return isANormalShape && isAnActualRectangle && isBigEnough;
     }
+
+    /**
+     * 查找文档离所有的轮廓并且按轮廓面积降序排列
+     * @param src
+     * @return
+     */
     private static ArrayList<MatOfPoint> findContours(Mat src) {
 
         Mat grayImage = null;
         Mat cannedImage = null;
         Mat resizedImage = null;
 
-        double ratio = src.size().height / 500;
+        double ratio = src.size().height / fixHeight;
         int height = Double.valueOf(src.size().height / ratio).intValue();
         int width = Double.valueOf(src.size().width / ratio).intValue();
         Size size = new Size(width, height);
@@ -144,30 +158,28 @@ public class Utils {
         grayImage = new Mat(size, CvType.CV_8UC4);
         cannedImage = new Mat(size, CvType.CV_8UC1);
 
-        Imgproc.resize(src, resizedImage, size);
-        Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);
-        Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
-        Imgproc.Canny(grayImage, cannedImage, 80, 100, 3, false);
+        Imgproc.resize(src, resizedImage, size);// 统一图片大小
+        Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);// 图片灰度化
+        Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);// 去噪点
+        Imgproc.Canny(grayImage, cannedImage, 80, 100, 3, false);// 边缘检测
 
         ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
-
+        // 基于边界查找可能存在的轮廓
         Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-
         hierarchy.release();
-
         Collections.sort(contours, new Comparator<MatOfPoint>() {
 
             @Override
             public int compare(MatOfPoint lhs, MatOfPoint rhs) {
+                // 按轮廓面积降序排列
                 return Double.valueOf(Imgproc.contourArea(rhs)).compareTo(Imgproc.contourArea(lhs));
             }
         });
-
+        // 释放资源
         resizedImage.release();
         grayImage.release();
         cannedImage.release();
-
         return contours;
     }
 }

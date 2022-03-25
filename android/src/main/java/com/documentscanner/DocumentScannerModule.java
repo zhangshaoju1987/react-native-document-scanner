@@ -2,7 +2,9 @@ package com.documentscanner;
 
 import android.graphics.Bitmap;
 import android.util.Base64;
+import android.util.Log;
 
+import com.documentscanner.helpers.CustomOpenCVLoader;
 import com.documentscanner.helpers.ScannedDocument;
 import com.documentscanner.views.MainView;
 import com.facebook.react.bridge.Arguments;
@@ -12,9 +14,12 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 
 
+import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -29,8 +34,6 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
     public DocumentScannerModule(ReactApplicationContext reactContext){
         super(reactContext);
     }
-
-
     @Override
     public String getName() {
         return "RNPdfScannerManager";
@@ -50,13 +53,32 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
     @ReactMethod
     public void detectDocument(String imageUri, Callback callback) {
 
-        Mat picture = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
-        Mat inputRgba = Imgcodecs.imdecode(picture, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
-        picture.release();
-        ScannedDocument sd = com.documentscanner.Utils.detectDocument(inputRgba);
-        WritableMap map = sd.getPoints();
-        callback.invoke(null, map);
-        inputRgba.release();
+        try{
+            Mat picture = Imgcodecs.imread(imageUri.replace("file://", ""));
+            Log.i("detectDocument","原始图片尺寸:width="+picture.width()+"height="+picture.height());
+            Mat img = picture.clone();
+//        Core.flip(img, img, 1);// 按Y轴进行翻转
+//        Core.flip(img, img, 0);// 按X轴进行翻转
+
+            ScannedDocument sd = com.documentscanner.Utils.detectDocumentFromImage(img);
+            WritableMap rectangleCoordinates = sd.getPoints();
+            WritableMap size = new WritableNativeMap();
+            size.putDouble("width",  picture.width());
+            size.putDouble("height", picture.height());
+
+            WritableMap documentInfo = new WritableNativeMap();
+            documentInfo.putMap("rectangleCoordinates",rectangleCoordinates);
+            documentInfo.putMap("size",size);
+            documentInfo.putBoolean("success",true);
+            callback.invoke(documentInfo);
+            picture.release();
+        }catch (Exception e){
+            e.printStackTrace();
+            WritableMap err = new WritableNativeMap();
+            err.putString("message",e.getMessage());
+            err.putBoolean("success",false);
+            callback.invoke(err);
+        }
     }
 
     /**
