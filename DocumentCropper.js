@@ -121,7 +121,7 @@ export default class DocumentCropper extends Component {
             };
         }
         
-        if(Platform.OS == "android"){
+        if(Platform.OS == "android" && this.imageSource != "image"){
             //console.log("缩放_1 ratio",ratio);
             newCorner = {
                 x: corner.x * scale,
@@ -156,7 +156,7 @@ export default class DocumentCropper extends Component {
             };
         }
 
-        if(Platform.OS == "android"){
+        if(Platform.OS == "android"  && this.imageSource != "image"){
             //console.log("缩放_2 ratio",ratio);
             newCorner = {
                 x: corner.x._value / scale, // 恢复成原始比例再转成原始像素
