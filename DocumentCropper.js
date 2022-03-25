@@ -16,9 +16,10 @@ export default class DocumentCropper extends Component {
             height: props.height,
             width: props.width,
             image: props.initialImage,
-            imageSource:props.imageSource||"camera",    // 图像来源：相机或者图片 camera or image
             moving: false,
         };
+        // 图像来源：相机或者图片 camera or image
+        this.imageSource = props.imageSource||"camera";
         const cornerPoint = props.rectangleCoordinates;// 四个角点
         this.state = {
             ...this.state,
@@ -112,7 +113,7 @@ export default class DocumentCropper extends Component {
         }
         
         if(Platform.OS == "android"){
-            const ratio = this.props.imageSource == "image"?500/this.state.viewWidth:1;
+            const ratio = this.imageSource == "image"?500/this.state.viewWidth:1;
             console.log("缩放_1 ratio",ratio);
             return {
                 x: corner.x * scale * ratio,
@@ -150,7 +151,7 @@ export default class DocumentCropper extends Component {
         }
 
         if(Platform.OS == "android"){
-            const ratio = this.props.imageSource == "image" ? 500/this.state.viewWidth:1;
+            const ratio = this.imageSource == "image" ? 500/this.state.viewWidth:1;
             console.log("缩放_2 ratio",ratio);
             return {
                 x: corner.x._value / scale / ratio, // 恢复成原始比例再转成原始像素
