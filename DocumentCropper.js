@@ -102,34 +102,32 @@ export default class DocumentCropper extends Component {
         // 图片的宽高,需要除以像素密度才能和屏幕宽度进行比较
         // 需要把图片宽度像素转成dp才能进行比较
         // 图片宽高一般以px为单位，而手机屏幕布局一般以dp为单位进行布局，需要借助于像素密度进行换算，统一宽高单位后才能进行缩放比例的计算
-        const imageW = Math.round(this.state.width/realPixelRatio);
+        const imageW = this.state.width/realPixelRatio;
         const scale = imageW/this.state.viewWidth;
-
+        let newCorner = {};
         if(Platform.OS == "ios"){
-            return {
+            newCorner = {
                 x: corner.x /realPixelRatio/scale,//转换成dp单位的角点后再进行一次缩放
                 y: corner.y /realPixelRatio/scale
             };
         }
         
         if(Platform.OS == "android"){
-            const ratio = this.imageSource == "image"?500/this.state.viewWidth:1;
-            console.log("缩放_1 ratio",ratio);
-            return {
+            const ratio = this.imageSource == "image"?parseInt(500/this.state.viewWidth*10)/10:1;
+            //console.log("缩放_1 ratio",ratio);
+            newCorner = {
                 x: corner.x * scale * ratio,
                 y: corner.y * scale * ratio
             };
         }
-
         if(label == "topLeft"){
             // RN中的尺寸单位为dp，而设计稿中的单位为px
-            console.log("原始图片宽度",imageW,this,"像素密度",PixelRatio.get());
+            console.log("原始图片宽度",imageW,"像素密度",PixelRatio.get());
             console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
             console.log("缩小比例",scale);
-            console.log("转换前,角点位置",label,corner);
+            console.log("原始角点位置",label,corner);
             console.log("转换后,角点位置",label,newCorner);
         }
-        
         return newCorner;
     }
     /**
@@ -140,28 +138,28 @@ export default class DocumentCropper extends Component {
     viewCoordinatesToImageCoordinates(corner,label) {
 
         const realPixelRatio = PixelRatio.get()/1.045;
-        const imageW = Math.round(this.state.width/realPixelRatio);// 部分手机像素密度虚高，比如小米手机
+        const imageW = this.state.width/realPixelRatio;// 部分手机像素密度虚高，比如小米手机
         const scale = imageW/this.state.viewWidth;
-
+        let newCorner = {};
         if(Platform.OS == "ios"){
-            return {
+            newCorner = {
                 x: corner.x._value * scale*realPixelRatio, // 恢复成原始比例再转成原始像素
                 y: corner.y._value * scale*realPixelRatio,
             };
         }
 
         if(Platform.OS == "android"){
-            const ratio = this.imageSource == "image" ? 500/this.state.viewWidth:1;
-            console.log("缩放_2 ratio",ratio);
-            return {
+            const ratio = this.imageSource == "image"?parseInt(500/this.state.viewWidth*10)/10:1;
+            //console.log("缩放_2 ratio",ratio);
+            
+            newCorner = {
                 x: corner.x._value / scale / ratio, // 恢复成原始比例再转成原始像素
                 y: corner.y._value / scale / ratio,
             };
         }
-        
         if(label == "topLeft"){
-            console.log("----------转换前,角点位置",label,corner);
-            console.log("----------转换后,角点位置",label,newCorner);
+            console.log("----------当前角点位置",label,corner);
+            console.log("----------恢复成原始角点位置",label,newCorner);
         }
         return newCorner;
     }
