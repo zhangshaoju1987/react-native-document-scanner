@@ -409,9 +409,14 @@ public class ImageProcessor extends Handler {
         int minimumSize = width / 10;
 
         boolean isANormalShape = rp[0].x != rp[1].x && rp[1].y != rp[0].y && rp[2].y != rp[3].y && rp[3].x != rp[2].x;
+        if(!isANormalShape){
+            return false;
+        }
         boolean isBigEnough = ((rp[1].x - rp[0].x >= minimumSize) && (rp[2].x - rp[3].x >= minimumSize)
                 && (rp[3].y - rp[0].y >= minimumSize) && (rp[2].y - rp[1].y >= minimumSize));
-
+        if(!isBigEnough){
+            return false;
+        }
         double leftOffset = rp[0].x - rp[3].x;
         double rightOffset = rp[1].x - rp[2].x;
         double bottomOffset = rp[0].y - rp[1].y;
@@ -422,7 +427,10 @@ public class ImageProcessor extends Handler {
                 && (bottomOffset <= minimumSize && bottomOffset >= -minimumSize)
                 && (topOffset <= minimumSize && topOffset >= -minimumSize));
 
-        return isANormalShape && isAnActualRectangle && isBigEnough;
+        if(!isAnActualRectangle){
+            return false;
+        }
+        return true;
     }
 
     private void enhanceDocument(Mat src) {
