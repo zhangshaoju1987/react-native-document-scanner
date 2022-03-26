@@ -54,24 +54,23 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
     public void detectDocument(String imageUri, Callback callback) {
 
         try{
-            Mat picture = Imgcodecs.imread(imageUri.replace("file://", ""));
+            Mat picture = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+            int width = picture.width();
+            int height = picture.height();
             Log.i("detectDocument","原始图片尺寸:width="+picture.width()+"height="+picture.height());
             Mat img = picture.clone();
-//        Core.flip(img, img, 1);// 按Y轴进行翻转
-//        Core.flip(img, img, 0);// 按X轴进行翻转
-
-            ScannedDocument sd = com.documentscanner.Utils.detectDocumentFromImage(img);
-            WritableMap rectangleCoordinates = sd.getPoints();
+            picture.release();// 及时释放
+            WritableMap rectangleCoordinates = com.documentscanner.Utils.detectDocumentEdgeFromImage(img);
+            img.release();// 及时释放
             WritableMap size = new WritableNativeMap();
-            size.putDouble("width",  picture.width());
-            size.putDouble("height", picture.height());
+            size.putDouble("width",  width);
+            size.putDouble("height", height);
 
             WritableMap documentInfo = new WritableNativeMap();
             documentInfo.putMap("rectangleCoordinates",rectangleCoordinates);
             documentInfo.putMap("size",size);
             documentInfo.putBoolean("success",true);
             callback.invoke(documentInfo);
-            picture.release();
         }catch (Exception e){
             e.printStackTrace();
             WritableMap err = new WritableNativeMap();

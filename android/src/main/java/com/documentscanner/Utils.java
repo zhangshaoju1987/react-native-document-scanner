@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.documentscanner.helpers.Quadrilateral;
 import com.documentscanner.helpers.ScannedDocument;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -24,22 +26,40 @@ public class Utils {
      * 检测文档边界
      * @param inputRgba
      */
-    public static ScannedDocument detectDocumentFromImage(Mat inputRgba){
+    public static WritableMap detectDocumentEdgeFromImage(Mat inputRgba){
 
         ArrayList<MatOfPoint> contours = findContours(inputRgba);
-        ScannedDocument sd = new ScannedDocument(inputRgba);
-        sd.originalSize = inputRgba.size();
-        Quadrilateral quad = getQuadrilateral(contours, sd.originalSize);
+        Quadrilateral quad = getQuadrilateral(contours, inputRgba.size());
+        WritableMap rectangleCoordinates = new WritableNativeMap();
+        WritableMap topLeft = new WritableNativeMap();
+        WritableMap topRight = new WritableNativeMap();
+        WritableMap bottomLeft = new WritableNativeMap();
+        WritableMap bottomRight = new WritableNativeMap();
 
-        sd.heightWithRatio = Double.valueOf(sd.originalSize.width).intValue();
-        sd.widthWithRatio = Double.valueOf(sd.originalSize.height).intValue();
-        Log.i("detectDocumentFromImage","缩放图片尺寸"+sd.widthWithRatio+""+sd.heightWithRatio);
-        sd.originalPoints = new Point[4];
-        sd.originalPoints[0] = quad.points[0]; // Topleft
-        sd.originalPoints[1] = quad.points[1]; // TopRight
-        sd.originalPoints[2] = quad.points[2]; // BottomRight
-        sd.originalPoints[3] = quad.points[3]; // BottomLeft
-        return sd;
+        if(quad == null){
+            topLeft.putDouble("x", 200);topLeft.putDouble("y", 200);
+            topRight.putDouble("x", 1000);topRight.putDouble("y", 200);
+            bottomRight.putDouble("x", 1000);bottomRight.putDouble("y", 900);
+            bottomLeft.putDouble("x", 200);bottomLeft.putDouble("y", 900);
+        }else {
+            topLeft.putDouble("x", quad.points[0].x);
+            topLeft.putDouble("y", quad.points[0].y);
+
+            topRight.putDouble("x", quad.points[1].x);
+            topRight.putDouble("y", quad.points[1].y);
+
+            bottomRight.putDouble("x", quad.points[2].x);
+            bottomRight.putDouble("y", quad.points[2].y);
+
+            bottomLeft.putDouble("x", quad.points[3].x);
+            bottomLeft.putDouble("y", quad.points[3].y);
+        }
+        rectangleCoordinates.putMap("topLeft", topLeft);
+        rectangleCoordinates.putMap("topRight", topRight);
+        rectangleCoordinates.putMap("bottomRight", bottomRight);
+        rectangleCoordinates.putMap("bottomLeft", bottomLeft);
+        return rectangleCoordinates;
+
     }
 
     /**
