@@ -307,7 +307,7 @@
 }
 
 
-- (void)focusAtPoint:(CGPoint)point completionHandler:(void(^)())completionHandler
+- (void)focusAtPoint:(CGPoint)point completionHandler:(void(^)(void))completionHandler
 {
     AVCaptureDevice *device = self.captureDevice;
     CGPoint pointOfInterest = CGPointZero;
@@ -388,7 +388,7 @@
                  enhancedImage = [self filteredImageUsingContrastFilterOnImage:enhancedImage];
              }
 
-             if (weakSelf.isBorderDetectionEnabled && rectangleDetectionConfidenceHighEnough(_imageDedectionConfidence))
+             if (weakSelf.isBorderDetectionEnabled && rectangleDetectionConfidenceHighEnough(self->_imageDedectionConfidence))
              {
                  CIRectangleFeature *rectangleFeature = [self biggestRectangleInRectangles:[[self highAccuracyRectangleDetector] featuresInImage:enhancedImage]];
 
@@ -419,15 +419,15 @@
              completionHandler(initialImage, initialImage, nil);
          }
 
-         _isCapturing = NO;
+        self->_isCapturing = NO;
      }];
 }
 
-- (void)hideGLKView:(BOOL)hidden completion:(void(^)())completion
+- (void)hideGLKView:(BOOL)hidden completion:(void(^)(void))completion
 {
     [UIView animateWithDuration:0.1 animations:^
     {
-        _glkView.alpha = (hidden) ? 0.0 : 1.0;
+        self->_glkView.alpha = (hidden) ? 0.0 : 1.0;
     }
     completion:^(BOOL finished)
     {
