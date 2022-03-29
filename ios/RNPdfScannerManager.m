@@ -37,6 +37,53 @@ RCT_EXPORT_METHOD(capture) {
     [_scannerView capture];
 }
 
+RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
+{
+    NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
+    CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
+    CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeRectangle context:nil options:@{CIDetectorAccuracy : CIDetectorAccuracyHigh}];
+    // 获取矩形区域数组
+    NSArray <CIFeature *>*rectangles = [detector featuresInImage:[CIImage imageWithCGImage:ciImage.CGImage]];
+    CIRectangleFeature *rectangleFeature = nil;
+    if (rectangles.count > 0) {
+        
+        // 最大矩形区域
+        CIRectangleFeature *rectangleFeature = (CIRectangleFeature *)rectangles.firstObject;
+        
+        CGFloat rectangleRect = 0;
+        
+        for (CIRectangleFeature *rect in rectangles) {
+            
+            CGPoint p1 = rect.topLeft;
+            CGPoint p2 = rect.topRight;
+            CGFloat width = hypotf(p1.x - p2.x, p1.y - p2.y);
+            
+            CGPoint p3 = rect.topLeft;
+            CGPoint p4 = rect.bottomLeft;
+            CGFloat height = hypotf(p3.x - p4.x, p3.y - p4.y);
+            
+            CGFloat currentRectangleRect = height + width;
+            
+            // 获取最大矩形rect
+            if (rectangleRect < currentRectangleRect) {
+                
+                rectangleRect = currentRectangleRect;
+                rectangleFeature = rect;
+            }
+        }
+    }
+    NSDictionary *rectangleCoordinates = rectangleFeature ? @{
+                             @"topLeft": @{ @"y": @(rectangleFeature.bottomLeft.x + 30), @"x": @(rectangleFeature.bottomLeft.y)},
+                             @"topRight": @{ @"y": @(rectangleFeature.topLeft.x + 30), @"x": @(rectangleFeature.topLeft.y)},
+                             @"bottomLeft": @{ @"y": @(rectangleFeature.bottomRight.x), @"x": @(rectangleFeature.bottomRight.y)},
+                             @"bottomRight": @{ @"y": @(rectangleFeature.topRight.x), @"x": @(rectangleFeature.topRight.y)},
+                             } : [NSDictionary dictionary];
+    
+    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":ciImage.properties[@"width"],@"height":ciImage.properties[@"height"]}}]);
+
+}
+
 RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
 {
     NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
