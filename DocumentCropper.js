@@ -73,7 +73,7 @@ export default class DocumentCropper extends Component {
             height: this.state.height,
             width: this.state.width,
         };
-        if(this.imageSource == "image"){
+        if(this.imageSource == "image" && Platform.OS =="android"){
             NativeModules.RNPdfScannerManager.cropImage(
                 coordinates,
                 this.state.image,
