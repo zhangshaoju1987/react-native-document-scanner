@@ -44,7 +44,7 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
     CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
     CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeRectangle context:nil options:@{CIDetectorAccuracy : CIDetectorAccuracyHigh}];
     // 获取矩形区域数组
-    NSArray <CIFeature *>*rectangles = [detector featuresInImage:[CIImage imageWithCGImage:ciImage.CGImage]];
+    NSArray <CIFeature *>*rectangles = [detector featuresInImage:ciImage];
     CIRectangleFeature *rectangleFeature = nil;
     if (rectangles.count > 0) {
         
@@ -81,8 +81,7 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
                              } : [NSDictionary dictionary];
     
     NSDictionary * p = ciImage.properties;
-    // 注意宽高需要交换
-    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":p[@"PixelHeight"],@"height":p[@"PixelWidth"]}}]);
+    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":p[@"PixelWidth"],@"height":p[@"PixelHeight"]}}]);
 }
 
 RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
