@@ -81,7 +81,8 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
                              } : [NSDictionary dictionary];
     
     NSDictionary * p = ciImage.properties;
-    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":p[@"PixelWidth"],@"height":p[@"PixelHeight"]}}]);
+    // 注意宽高需要交换
+    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":p[@"PixelHeight"],@"height":p[@"PixelWidth"]}}]);
 }
 
 RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
