@@ -23,10 +23,10 @@ export default class DocumentCropper extends Component {
         const cornerPoint = props.rectangleCoordinates;// 四个角点
         this.state = {
             ...this.state,
-            topLeft: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.topLeft,"topLeft"): { x: 100, y: 100 }),
-            topRight: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.topRight,"topRight"): { x: viewWidth - 100, y: 100 }),
-            bottomLeft: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomLeft,"bottomLeft"): { x: 100, y: this.state.viewHeight - 100 },),
-            bottomRight: new Animated.ValueXY(cornerPoint? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomRight,"bottomRight"): {x: viewWidth - 100,y: this.state.viewHeight - 100})
+            topLeft: new Animated.ValueXY(cornerPoint && cornerPoint.topLeft? this.imageCoordinatesToViewCoordinates(cornerPoint.topLeft,"topLeft"): { x: 100, y: 100 }),
+            topRight: new Animated.ValueXY(cornerPoint && cornerPoint.topRight? this.imageCoordinatesToViewCoordinates(cornerPoint.topRight,"topRight"): { x: viewWidth - 100, y: 100 }),
+            bottomLeft: new Animated.ValueXY(cornerPoint&& cornerPoint.bottomLeft? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomLeft,"bottomLeft"): { x: 100, y: this.state.viewHeight - 100 },),
+            bottomRight: new Animated.ValueXY(cornerPoint&& cornerPoint.bottomRight? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomRight,"bottomRight"): {x: viewWidth - 100,y: this.state.viewHeight - 100})
         };
         this.state = {
             ...this.state,
