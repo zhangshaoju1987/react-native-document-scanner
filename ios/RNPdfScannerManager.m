@@ -80,8 +80,8 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
                              @"bottomRight": @{ @"y": @(rectangleFeature.topRight.x), @"x": @(rectangleFeature.topRight.y)},
                              } : [NSDictionary dictionary];
     
-    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":ciImage.properties[@"width"],@"height":ciImage.properties[@"height"]}}]);
-
+    NSDictionary * p = ciImage.properties;
+    callback(@[@{@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":p[@"width"],@"height":p[@"height"]}}]);
 }
 
 RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
