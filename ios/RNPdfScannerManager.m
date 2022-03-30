@@ -51,7 +51,7 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
     if (rectangles.count > 0) {
         
         // 最大矩形区域
-        CIRectangleFeature *rectangleFeature = (CIRectangleFeature *)rectangles.firstObject;
+        rectangleFeature = (CIRectangleFeature *)rectangles.firstObject;
         
         CGFloat rectangleRect = 0;
         
