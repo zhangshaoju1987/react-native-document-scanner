@@ -95,4 +95,8 @@ public class MainView extends FrameLayout {
     public void capture() {
         view.capture();
     }
+
+    public void stop() {
+        view.stop();
+    }
 }

@@ -44,6 +44,11 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         MainView view = MainView.getInstance();
         view.capture();
     }
+    @ReactMethod
+    public void stop(){
+        MainView view = MainView.getInstance();
+        view.stop();
+    }
 
     /**
      * 单独检测文档边界
