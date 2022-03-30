@@ -73,7 +73,7 @@ export default class DocumentCropper extends Component {
             height: this.state.height,
             width: this.state.width,
         };
-        if(this.imageSource == "image" && Platform.OS =="android"){
+        if(this.imageSource == "image"){
             NativeModules.RNPdfScannerManager.cropImage(
                 coordinates,
                 this.state.image,
@@ -165,7 +165,7 @@ export default class DocumentCropper extends Component {
                 y: corner.y._value * scale * realPixelRatio,
             };
             if(label == "topLeft"){
-                console.log("----------1当前角点位置",label,corner);
+                //console.log("----------1当前角点位置",label,corner);
                 console.log("----------1恢复成原始角点位置",label,newCorner);
             }
             return newCorner;
@@ -178,7 +178,7 @@ export default class DocumentCropper extends Component {
                 y: corner.y._value / scale,
             };
             if(label == "topLeft"){
-                console.log("----------2当前角点位置",label,corner);
+                //console.log("----------2当前角点位置",label,corner);
                 console.log("----------2恢复成原始角点位置",label,newCorner);
             }
             return newCorner;
