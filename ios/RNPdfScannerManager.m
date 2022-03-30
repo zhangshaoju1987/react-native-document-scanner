@@ -120,21 +120,22 @@ RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri call
     NSData *imageToEncode = UIImageJPEGRepresentation(image, 0.8);
     callback(@[[NSNull null], @{@"image": [imageToEncode base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]}]);
 }
+
 RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
 {
     NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
     CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
     
-    CGPoint newLeft = CGPointMake([points[@"topLeft"][@"x"] floatValue], [points[@"topLeft"][@"y"] floatValue]);
-    CGPoint newRight = CGPointMake([points[@"topRight"][@"x"] floatValue], [points[@"topRight"][@"y"] floatValue]);
-    CGPoint newBottomRight = CGPointMake([points[@"bottomRight"][@"x"] floatValue], [points[@"bottomRight"][@"y"] floatValue]);
-    CGPoint newBottomLeft = CGPointMake([points[@"bottomLeft"][@"x"] floatValue], [points[@"bottomLeft"][@"y"] floatValue]);
+    CGPoint newLeft = CGPointMake([points[@"topLeft"][@"y"] floatValue], [points[@"topLeft"][@"x"] floatValue]);
+    CGPoint newRight = CGPointMake([points[@"topRight"][@"y"] floatValue], [points[@"topRight"][@"x"] floatValue]);
+    CGPoint newBottomRight = CGPointMake([points[@"bottomRight"][@"y"] floatValue], [points[@"bottomRight"][@"x"] floatValue]);
+    CGPoint newBottomLeft = CGPointMake([points[@"bottomLeft"][@"y"] floatValue], [points[@"bottomLeft"][@"x"] floatValue]);
     
-    newLeft = [self cartesianForPoint:newLeft height:[points[@"height"] floatValue] ];
-    newRight = [self cartesianForPoint:newRight height:[points[@"height"] floatValue] ];
-    newBottomLeft = [self cartesianForPoint:newBottomLeft height:[points[@"height"] floatValue] ];
-    newBottomRight = [self cartesianForPoint:newBottomRight height:[points[@"height"] floatValue] ];
+//    newLeft = [self cartesianForPoint:newLeft height:[points[@"height"] floatValue] ];
+//    newRight = [self cartesianForPoint:newRight height:[points[@"height"] floatValue] ];
+//    newBottomLeft = [self cartesianForPoint:newBottomLeft height:[points[@"height"] floatValue] ];
+//    newBottomRight = [self cartesianForPoint:newBottomRight height:[points[@"height"] floatValue] ];
     
     
     
