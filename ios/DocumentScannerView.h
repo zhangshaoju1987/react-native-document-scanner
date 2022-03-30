@@ -13,6 +13,4 @@
 @property (nonatomic, assign) BOOL saveInAppDocument;
 
 - (void) capture;
-- (void) stop;
-
 @end

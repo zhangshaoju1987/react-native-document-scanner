@@ -36,10 +36,6 @@ RCT_EXPORT_METHOD(capture) {
 
     [_scannerView capture];
 }
-RCT_EXPORT_METHOD(stop) {
-
-    [_scannerView stop];
-}
 
 RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
 {
