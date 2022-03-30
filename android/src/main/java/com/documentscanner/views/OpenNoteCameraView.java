@@ -198,8 +198,14 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
     public void capture() {
         this.requestManualPicture();
     }
+    
     public void stop() {
-
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.setPreviewCallback(null);
+            mCamera.release();
+            mCamera = null;
+        }
     }
 
     public void setManualOnly(boolean manualOnly) {
