@@ -72,6 +72,7 @@ export default class DocumentScanner extends React.Component {
         this.offOnProcessingChange.remove();
       }
     }
+    // 手动停止相机，释放相机资源
     NativeModules.RNPdfScannerManager.stop();
 
   }
