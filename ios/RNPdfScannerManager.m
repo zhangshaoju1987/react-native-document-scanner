@@ -37,6 +37,11 @@ RCT_EXPORT_METHOD(capture) {
     [_scannerView capture];
 }
 
+RCT_EXPORT_METHOD(stop) {
+
+    [_scannerView stopCamera];
+}
+
 RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
 {
     NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
