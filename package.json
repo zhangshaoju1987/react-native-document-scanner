@@ -1,0 +1,33 @@
+{
+  "name": "@zhumi/react-native-document-scanner",
+  "description": "文档扫描,边界检测,自动或者手动裁剪",
+  "version": "2.4.4",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhangshaoju1987/react-native-document-scanner"
+  },
+  "keywords": [
+    "react-native",
+    "scanner",
+    "cropper",
+    "android",
+    "ios"
+  ],
+  "author": "zhangshaoju",
+  "license": "bigbrian.lic",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react-native": ">=0.60.0"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-native-svg": "^12.3.0"
+  }
+}

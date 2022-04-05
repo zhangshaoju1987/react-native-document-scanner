@@ -1,0 +1,17 @@
+import DocumentScanner from "./DocumentScanner";
+import DocumentCropper from "./DocumentCropper";
+import {NativeModules} from "react-native";
+
+
+/**
+ * 检测文档边界
+ * @param {string} imageUri 
+ * @param {*} callback 
+ */
+function detectDocument(imageUri,callback){
+    NativeModules.RNPdfScannerManager.detectDocument(imageUri,callback);
+}
+/**
+ * 导出文档扫描器和图片裁剪器
+ */
+export {DocumentScanner,DocumentCropper,detectDocument}

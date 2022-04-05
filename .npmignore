@@ -1,0 +1,8 @@
+node_modules
+Example
+images
+android/.gradle
+android/.idea
+android/build
+android/local.properties
+android/opencv310/build
