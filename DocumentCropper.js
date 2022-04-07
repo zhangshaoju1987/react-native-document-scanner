@@ -13,8 +13,8 @@ export default class DocumentCropper extends Component {
         this.state = {
             viewWidth,
             viewHeight:viewWidth * (props.height / props.width), // 按实际的图片的宽高比例进行展示
-            height: props.height,
-            width: props.width,
+            width: props.width,     // 图片的实际宽度，物理像素
+            height: props.height,   // 图片的实际高度，物理像素
             image: props.initialImage,
             moving: false,
         };
@@ -108,15 +108,15 @@ export default class DocumentCropper extends Component {
 
         let newCorner = {};
         if(Platform.OS == "ios" || this.imageSource == "image"){
-            const realPixelRatio = PixelRatio.get()/1.045; // 由于手机像素密度一般稍微虚高,根据测验的数据，除以一个系数1.045比较合适，可以得到更准确的像素密度
+            const realPixelRatio = PixelRatio.get();
             // 图片的宽高,需要除以像素密度才能和屏幕宽度进行比较
             // 需要把图片宽度像素转成dp才能进行比较
             // 图片宽高一般以px为单位，而手机屏幕布局一般以dp为单位进行布局，需要借助于像素密度进行换算，统一宽高单位后才能进行缩放比例的计算
             const imageW = this.state.width/realPixelRatio;
-            const scale = imageW/this.state.viewWidth;
+            const scale = this.state.viewWidth/imageW;
             newCorner = {
-                x: corner.x /realPixelRatio/scale,//转换成dp单位的角点后再进行一次缩放
-                y: corner.y /realPixelRatio/scale
+                x: corner.x / realPixelRatio * scale,//转换成dp单位的角点后再进行一次缩放
+                y: corner.y / realPixelRatio * scale
             };
             if(label == "topLeft"){
                 // RN中的尺寸单位为dp，而设计稿中的单位为px
@@ -132,15 +132,23 @@ export default class DocumentCropper extends Component {
         if(Platform.OS == "android"){
             const realPixelRatio = PixelRatio.get();
             const imageW = this.state.width/realPixelRatio;
-            const scale = imageW/this.state.viewWidth;
-            const realScale = scale*(Dimensions.get("window").width/500);// 安卓端写死了按500像素进行缩放
+            const imageH = this.state.height/realPixelRatio;
+            const scale = this.state.viewWidth/imageW;
+            const androidScale = this.state.width/500;
+            /**
+             * 安卓端扫描时，存在两次缩放
+             * 1. 原始图片缩放到500px进行识别
+             * 2. 原始图片缩放到屏幕宽度进行展示
+             * 采集的点位是基于宽度为500像素图片得到的
+             * 所以，需要将点位先还原到原始图片上，在从原始图片映射到手机屏幕上
+             */
             newCorner = {
-                x: corner.x * realScale,
-                y: corner.y * realScale
+                x: (corner.x * androidScale) / realPixelRatio * scale,
+                y: (corner.y * androidScale) / realPixelRatio * scale
             };
             if(label == "topLeft"){
                 // RN中的尺寸单位为dp，而设计稿中的单位为px
-                console.log("原始图片宽度",imageW,"像素密度",PixelRatio.get());
+                console.log("原始图片宽高",imageW,imageH,"像素密度",PixelRatio.get());
                 console.log("目标视窗大小",this.state.viewWidth,this.state.viewHeight);
                 console.log("缩小比例",scale);
                 console.log("原始角点位置",label,corner);
@@ -159,12 +167,12 @@ export default class DocumentCropper extends Component {
        
         let newCorner = {};
         if(Platform.OS == "ios" || this.imageSource == "image"){
-            const realPixelRatio = PixelRatio.get()/1.045;
+            const realPixelRatio = PixelRatio.get();
             const imageW = this.state.width/realPixelRatio;// 部分手机像素密度虚高，比如小米手机
-            const scale = imageW/this.state.viewWidth;
+            const scale = this.state.viewWidth/imageW;
             newCorner = {
-                x: corner.x._value * scale * realPixelRatio, // 恢复成原始比例再转成原始像素
-                y: corner.y._value * scale * realPixelRatio,
+                x: corner.x._value / scale * realPixelRatio, // 恢复成原始比例再转成原始像素
+                y: corner.y._value / scale * realPixelRatio,
             };
             if(label == "topLeft"){
                 console.log("----------1恢复成原始角点位置",label,newCorner);
@@ -174,15 +182,16 @@ export default class DocumentCropper extends Component {
 
         if(Platform.OS == "android"){
             const realPixelRatio = PixelRatio.get();
-            const imageW = this.state.width/realPixelRatio;// 部分手机像素密度虚高，比如小米手机
-            const scale = imageW/this.state.viewWidth;        
-            const realScale = scale*(Dimensions.get("window").width/500);// 安卓端写死了按500像素进行缩放    
+            const imageW = this.state.width/realPixelRatio;
+            const imageH = this.state.height/realPixelRatio;
+            const scale = this.state.viewWidth/imageW;
+            const androidScale = this.state.width/500;
             newCorner = {
-                x: corner.x._value / realScale, // 恢复成原始比例再转成原始像素
-                y: corner.y._value / realScale,
+                x: (corner.x._value / androidScale) / scale * realPixelRatio,
+                y: (corner.y._value / androidScale) / scale * realPixelRatio,
             };
             if(label == "topLeft"){
-                console.log("----------2恢复成原始角点位置",label,newCorner);
+                console.log("----------1恢复成原始角点位置",label,newCorner);
             }
             return newCorner;
         }
