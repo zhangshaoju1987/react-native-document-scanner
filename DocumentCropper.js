@@ -172,7 +172,7 @@ export default class DocumentCropper extends Component {
             return newCorner;
         }
 
-        if(Platform.OS == "android"  && this.imageSource != "image"){
+        if(Platform.OS == "android"){
             const realPixelRatio = PixelRatio.get();
             const imageW = this.state.width/realPixelRatio;// 部分手机像素密度虚高，比如小米手机
             const scale = imageW/this.state.viewWidth;        
