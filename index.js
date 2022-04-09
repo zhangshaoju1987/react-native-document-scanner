@@ -19,11 +19,11 @@ function detectDocument(imageUri,callback){
  * @param {*} success 
  * @param {*} fail 
  */
-function rotateImage(uri,angle,callback){
-    NativeModules.RNPdfScannerManager.rotateImage(uri,angle,callback);
+function rotate90(uri,callback){
+    NativeModules.RNPdfScannerManager.rotateImage(uri,callback);
 }
 
 /**
  * 导出文档扫描器和图片裁剪器
  */
-export {DocumentScanner,DocumentCropper,detectDocument,rotateImage}
+export {DocumentScanner,DocumentCropper,detectDocument,rotate90}
