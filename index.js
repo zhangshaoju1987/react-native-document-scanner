@@ -15,9 +15,7 @@ function detectDocument(imageUri,callback){
 /**
  * 旋转图片(每次顺时针旋转90度)
  * @param {*} uri 
- * @param {*} angle 
- * @param {*} success 
- * @param {*} fail 
+ * @param {*} callback 
  */
 function rotate90(uri,callback){
     NativeModules.RNPdfScannerManager.rotateImage(uri,callback);
