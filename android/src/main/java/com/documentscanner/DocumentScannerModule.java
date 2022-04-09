@@ -1,11 +1,9 @@
 package com.documentscanner;
 
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
-
-import com.documentscanner.helpers.CustomOpenCVLoader;
-import com.documentscanner.helpers.ScannedDocument;
 import com.documentscanner.views.MainView;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -16,10 +14,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 
-
-import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -197,5 +192,37 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         callback.invoke(null, map);
 
         m.release();
+    }
+
+    /**
+     * Rotate an image. If all goes well, the success callback will be called with the file:// URI of
+     * the new image as the only argument. This is a temporary file - consider using
+     * CameraRollManager.saveImageWithTag to save it in the gallery.
+     *
+     * @param uri the MediaStore URI of the image to rotate
+     * @param angle rotation angle
+     * @param success callback to be invoked when the image has been rotated; the only argument that
+     *        is passed to this callback is the file:// URI of the new image
+     * @param error callback to be invoked when an error occurs (e.g. can't create file etc.)
+     */
+    @ReactMethod
+    public void rotateImage(
+            String uri,
+            final float angle,
+            final Callback success,
+            final Callback error) {
+
+        if (uri == null || uri.isEmpty()) {
+            throw new RuntimeException("缺失URI参数");
+        }
+
+        RotateTask rotateTask = new RotateTask(
+                getReactApplicationContext(),
+                uri,
+                angle,
+                success,
+                error);
+
+        rotateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

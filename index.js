@@ -11,7 +11,20 @@ import {NativeModules} from "react-native";
 function detectDocument(imageUri,callback){
     NativeModules.RNPdfScannerManager.detectDocument(imageUri,callback);
 }
+
+/**
+ * 旋转图片
+ * @param {*} uri 
+ * @param {*} angle 
+ * @param {*} success 
+ * @param {*} fail 
+ */
+function rotateImage(uri,angle,success,fail){
+    NativeModules.RNPdfScannerManager.rotateImage(uri,angle,success,fail);
+
+}
+
 /**
  * 导出文档扫描器和图片裁剪器
  */
-export {DocumentScanner,DocumentCropper,detectDocument}
+export {DocumentScanner,DocumentCropper,detectDocument,rotateImage}
