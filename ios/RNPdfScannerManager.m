@@ -1,8 +1,6 @@
 
 #import "RNPdfScannerManager.h"
 #import "DocumentScannerView.h"
-#import "RCTImageStoreManager.h"
-#import "RCTImageLoader.h"
 @interface RNPdfScannerManager()
 @property (strong, nonatomic) DocumentScannerView *scannerView;
 @end
@@ -15,8 +13,6 @@
 }
 
 RCT_EXPORT_MODULE()
-
-@synthesize bridge = _bridge;
 
 static CGFloat DegreesToRadians(CGFloat degrees) {
     return degrees * M_PI / 180.0;
@@ -50,35 +46,34 @@ RCT_EXPORT_METHOD(stop) {
     [_scannerView stopCamera];
 }
 
-RCT_EXPORT_METHOD(rotateImage:(NSURLRequest *)imageURL callback:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(rotateImage:(NSString *)base64Img callback:(RCTResponseSenderBlock)callback)
 {
-    [_bridge.imageLoader loadImageWithURLRequest:imageURL callback:^(NSError *error, UIImage *image) {
-          
-        // calculate the size of the rotated view's containing box for our drawing space
-        UIView *rotatedViewBox = [[UIView alloc] initWithFrame:CGRectMake(0, 0, image.size.width, image.size.height)];
-        CGAffineTransform t = CGAffineTransformMakeRotation(DegreesToRadians(90));
-        rotatedViewBox.transform = t;
-        CGSize rotatedSize = rotatedViewBox.frame.size;
-          
-        // Create the bitmap context
-        UIGraphicsBeginImageContext(rotatedSize);
-        CGContextRef bitmap = UIGraphicsGetCurrentContext();
-          
-        // Move the origin to the middle of the image so we will rotate and scale around the center.
-        CGContextTranslateCTM(bitmap, rotatedSize.width / 2, rotatedSize.height / 2);
-          
-        // Rotate the image context
-        CGContextRotateCTM(bitmap, DegreesToRadians(90));
-          
-        // Now, draw the rotated/scaled image into the context
-        CGContextScaleCTM(bitmap, 1.0, -1.0);
-        CGContextDrawImage(bitmap, CGRectMake(-image.size.width / 2, -image.size.height / 2, image.size.width, image.size.height), [image CGImage]);
-          
-        UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        NSData *imageToEncode = UIImageJPEGRepresentation(rotatedImage, 1.0);
-        callback(@[[NSNull null], @{@"image": [imageToEncode base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]}]);
-      }];
+    NSData *data = [[NSData alloc]initWithBase64EncodedString:base64Img options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    UIImage *image = [UIImage imageWithData:data];
+    // calculate the size of the rotated view's containing box for our drawing space
+    UIView *rotatedViewBox = [[UIView alloc] initWithFrame:CGRectMake(0, 0, image.size.width, image.size.height)];
+    CGAffineTransform t = CGAffineTransformMakeRotation(DegreesToRadians(90));
+    rotatedViewBox.transform = t;
+    CGSize rotatedSize = rotatedViewBox.frame.size;
+      
+    // Create the bitmap context
+    UIGraphicsBeginImageContext(rotatedSize);
+    CGContextRef bitmap = UIGraphicsGetCurrentContext();
+      
+    // Move the origin to the middle of the image so we will rotate and scale around the center.
+    CGContextTranslateCTM(bitmap, rotatedSize.width / 2, rotatedSize.height / 2);
+      
+    // Rotate the image context
+    CGContextRotateCTM(bitmap, DegreesToRadians(90));
+      
+    // Now, draw the rotated/scaled image into the context
+    CGContextScaleCTM(bitmap, 1.0, -1.0);
+    CGContextDrawImage(bitmap, CGRectMake(-image.size.width / 2, -image.size.height / 2, image.size.width, image.size.height), [image CGImage]);
+      
+    UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    NSData *imageToEncode = UIImageJPEGRepresentation(rotatedImage, 1.0);
+    callback(@[@{@"image": [imageToEncode base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]}]);
 }
 
 RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
