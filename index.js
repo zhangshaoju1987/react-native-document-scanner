@@ -13,15 +13,14 @@ function detectDocument(imageUri,callback){
 }
 
 /**
- * 旋转图片
+ * 旋转图片(每次顺时针旋转90度)
  * @param {*} uri 
  * @param {*} angle 
  * @param {*} success 
  * @param {*} fail 
  */
-function rotateImage(uri,angle,success,fail){
-    NativeModules.RNPdfScannerManager.rotateImage(uri,angle,success,fail);
-
+function rotateImage(uri,angle,callback){
+    NativeModules.RNPdfScannerManager.rotateImage(uri,angle,callback);
 }
 
 /**

@@ -1,7 +1,6 @@
 package com.documentscanner;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
 import com.documentscanner.views.MainView;
@@ -15,6 +14,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -128,7 +128,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Utils.matToBitmap(doc, bitmap);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
 
         WritableMap map = Arguments.createMap();
@@ -184,7 +184,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Utils.matToBitmap(doc, bitmap);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
 
         WritableMap map = Arguments.createMap();
@@ -199,30 +199,37 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
      * the new image as the only argument. This is a temporary file - consider using
      * CameraRollManager.saveImageWithTag to save it in the gallery.
      *
-     * @param uri the MediaStore URI of the image to rotate
-     * @param angle rotation angle
-     * @param success callback to be invoked when the image has been rotated; the only argument that
+     * @param uriInBase64 the MediaStore URI of the image to rotate
+     * @param callback callback to be invoked when the image has been rotated; the only argument that
      *        is passed to this callback is the file:// URI of the new image
-     * @param error callback to be invoked when an error occurs (e.g. can't create file etc.)
      */
     @ReactMethod
     public void rotateImage(
-            String uri,
-            final float angle,
-            final Callback success,
-            final Callback error) {
+            String uriInBase64,
+            final Callback callback) {
 
-        if (uri == null || uri.isEmpty()) {
+        if (uriInBase64 == null || uriInBase64.isEmpty()) {
             throw new RuntimeException("缺失URI参数");
         }
 
-        RotateTask rotateTask = new RotateTask(
-                getReactApplicationContext(),
-                uri,
-                angle,
-                success,
-                error);
+        Mat src = Imgcodecs.imread(uriInBase64.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        Mat tmp = new Mat();
+        Core.transpose(src,tmp);    // 转置
+        Mat result = new Mat();
+        Core.flip(tmp,result,1);    // 翻转
 
-        rotateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        Bitmap bitmap = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(result, bitmap);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        WritableMap map = Arguments.createMap();
+        map.putString("image", Base64.encodeToString(byteArray, Base64.DEFAULT));
+        callback.invoke(null, map);
+        src.release();
+        tmp.release();
+        result.release();
     }
 }
