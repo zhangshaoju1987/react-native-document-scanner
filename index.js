@@ -17,8 +17,8 @@ function detectDocument(imageUri,callback){
  * @param {*} uri 
  * @param {*} callback 
  */
-function rotate90(uri,callback){
-    NativeModules.RNPdfScannerManager.rotateImage(uri,callback);
+function rotate90(imageUri,callback){
+    NativeModules.RNPdfScannerManager.rotateImage(imageUri,callback);
 }
 
 /**
