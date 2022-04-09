@@ -1,6 +1,7 @@
 package com.documentscanner;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 import com.documentscanner.views.MainView;
@@ -199,20 +200,19 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
      * the new image as the only argument. This is a temporary file - consider using
      * CameraRollManager.saveImageWithTag to save it in the gallery.
      *
-     * @param uriInBase64 the MediaStore URI of the image to rotate
+     * @param base64Img the MediaStore URI of the image to rotate
      * @param callback callback to be invoked when the image has been rotated; the only argument that
      *        is passed to this callback is the file:// URI of the new image
      */
     @ReactMethod
     public void rotateImage(
-            String uriInBase64,
+            String base64Img,
             final Callback callback) {
 
-        if (uriInBase64 == null || uriInBase64.isEmpty()) {
-            throw new RuntimeException("缺失URI参数");
-        }
-
-        Mat src = Imgcodecs.imread(uriInBase64.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        byte [] content = Base64.decode(base64Img,Base64.DEFAULT);
+        Bitmap bitmap1 = BitmapFactory.decodeByteArray(content,0,content.length);
+        Mat src = new Mat();
+        Utils.bitmapToMat(bitmap1,src);
         Mat tmp = new Mat();
         Core.transpose(src,tmp);    // 转置
         Mat result = new Mat();
@@ -222,7 +222,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Bitmap bitmap = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(result, bitmap);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
 
         WritableMap map = Arguments.createMap();
