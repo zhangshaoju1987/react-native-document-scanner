@@ -84,7 +84,13 @@ RCT_EXPORT_METHOD(rotateImage:(NSString *)base64Img callback:(RCTResponseSenderB
     UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     NSData *imageToEncode = UIImageJPEGRepresentation(rotatedImage, 1.0);
-    callback(@[@{@"image": [imageToEncode base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]}]);
+    
+    NSString *dir = NSTemporaryDirectory();
+    int time = (int)[NSDate date].timeIntervalSince1970;
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"rotate_%i.jpeg",time]];
+    [imageToEncode writeToFile:filePath atomically:YES];
+    NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
+    callback(@[@{@"image": uri}]);
 }
 
 RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
@@ -168,7 +174,14 @@ RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri call
     UIImage *image = [UIImage imageWithCGImage:cgimage];
     
     NSData *imageToEncode = UIImageJPEGRepresentation(image, 1.0);
-    callback(@[[NSNull null], @{@"image": [imageToEncode base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]}]);
+    
+    NSString *dir = NSTemporaryDirectory();
+    int time = (int)[NSDate date].timeIntervalSince1970;
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"document0_%i.jpeg",time]];
+    [imageToEncode writeToFile:filePath atomically:YES];
+    NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
+    callback(@[@{@"image": uri}]);
+    
 }
 
 RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
@@ -203,7 +216,13 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri
     UIImage *image = [UIImage imageWithCGImage:cgimage];
     
     NSData *imageToEncode = UIImageJPEGRepresentation(image, 1.0);
-    callback(@[[NSNull null], @{@"image": [imageToEncode base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]}]);
+    
+    NSString *dir = NSTemporaryDirectory();
+    int time = (int)[NSDate date].timeIntervalSince1970;
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"document0_%i.jpeg",time]];
+    [imageToEncode writeToFile:filePath atomically:YES];
+    NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
+    callback(@[@{@"image": uri}]);
 }
 
 - (CGPoint)cartesianForPoint:(CGPoint)point height:(float)height {
