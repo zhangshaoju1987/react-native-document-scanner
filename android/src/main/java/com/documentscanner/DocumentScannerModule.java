@@ -2,6 +2,7 @@ package com.documentscanner;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
 import com.documentscanner.views.MainView;
@@ -23,6 +24,10 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Date;
+import java.util.UUID;
 
 
 public class DocumentScannerModule extends ReactContextBaseJavaModule{
@@ -128,15 +133,24 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Bitmap bitmap = Bitmap.createBitmap(doc.cols(), doc.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(doc, bitmap);
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-        WritableMap map = Arguments.createMap();
-        map.putString("image", Base64.encodeToString(byteArray, Base64.DEFAULT));
-        callback.invoke(null, map);
-
         m.release();
+        try{
+            String folderName = "documents";
+            File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            String fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document0-" + new Date().getTime() + ".jpeg";
+            FileOutputStream out = new FileOutputStream(fileName);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+            WritableMap map = Arguments.createMap();
+            map.putString("image", fileName);
+            callback.invoke(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            callback.invoke(Arguments.createMap());
+        }
     }
 
     /**
@@ -184,15 +198,25 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Bitmap bitmap = Bitmap.createBitmap(doc.cols(), doc.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(doc, bitmap);
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-        WritableMap map = Arguments.createMap();
-        map.putString("image", Base64.encodeToString(byteArray, Base64.DEFAULT));
-        callback.invoke(null, map);
-
         m.release();
+        try{
+            String folderName = "documents";
+            File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            String fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document1-" + new Date().getTime() + ".jpeg";
+            FileOutputStream out = new FileOutputStream(fileName);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+            WritableMap map = Arguments.createMap();
+            map.putString("image", fileName);
+            callback.invoke(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            callback.invoke(Arguments.createMap());
+
+        }
     }
 
     /**
@@ -223,18 +247,27 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Mat result = new Mat();
         Core.flip(tmp,result,1);    // 翻转
 
-
         Bitmap bitmap = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(result, bitmap);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-        WritableMap map = Arguments.createMap();
-        map.putString("image", Base64.encodeToString(byteArray, Base64.DEFAULT));
-        callback.invoke(map);
         src.release();
         tmp.release();
         result.release();
+        try{
+            String folderName = "documents";
+            File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            String fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/rotate-" + new Date().getTime() + ".jpeg";
+            FileOutputStream out = new FileOutputStream(fileName);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+            WritableMap map = Arguments.createMap();
+            map.putString("image", fileName);
+            callback.invoke(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            callback.invoke(Arguments.createMap());
+        }
     }
 }

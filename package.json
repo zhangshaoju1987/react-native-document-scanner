@@ -1,7 +1,7 @@
 {
   "name": "@zhumi/react-native-document-scanner",
   "description": "文档扫描,边界检测,自动或者手动裁剪",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
