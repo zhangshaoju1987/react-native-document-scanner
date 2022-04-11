@@ -48,8 +48,19 @@ RCT_EXPORT_METHOD(stop) {
 
 RCT_EXPORT_METHOD(rotateImage:(NSString *)base64Img callback:(RCTResponseSenderBlock)callback)
 {
-    NSData *data = [[NSData alloc]initWithBase64EncodedString:base64Img options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    UIImage *image = [UIImage imageWithData:data];
+    UIImage *image = nil;
+    // 同时支持base64图片和磁盘图片
+    if ([base64Img hasPrefix:@"file://"]){
+        NSString *parsedImageUri = [base64Img stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+        NSLog(@"rotateImage url is %@",parsedImageUri);
+        NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
+        CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
+        image = [UIImage imageWithCIImage:ciImage];
+    }else{
+        NSData *data = [[NSData alloc]initWithBase64EncodedString:base64Img options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        image = [UIImage imageWithData:data];
+    }
+    
     // calculate the size of the rotated view's containing box for our drawing space
     UIView *rotatedViewBox = [[UIView alloc] initWithFrame:CGRectMake(0, 0, image.size.width, image.size.height)];
     CGAffineTransform t = CGAffineTransformMakeRotation(DegreesToRadians(90));
