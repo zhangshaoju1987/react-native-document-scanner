@@ -209,10 +209,15 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             String base64Img,
             final Callback callback) {
 
-        byte [] content = Base64.decode(base64Img,Base64.DEFAULT);
-        Bitmap bitmap1 = BitmapFactory.decodeByteArray(content,0,content.length);
         Mat src = new Mat();
-        Utils.bitmapToMat(bitmap1,src);
+        if(base64Img.startsWith("file://")){
+            src = Imgcodecs.imread(base64Img.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        }else{
+            byte [] content = Base64.decode(base64Img,Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(content,0,content.length);
+            Utils.bitmapToMat(bitmap,src);
+        }
+        
         Mat tmp = new Mat();
         Core.transpose(src,tmp);    // 转置
         Mat result = new Mat();
