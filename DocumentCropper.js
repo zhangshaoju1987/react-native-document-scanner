@@ -77,13 +77,13 @@ export default class DocumentCropper extends Component {
             NativeModules.RNPdfScannerManager.cropImage(
                 coordinates,
                 this.state.image,
-                (err, res) => this.props.updateImage(res.image, coordinates),
+                (res) => this.props.updateImage(res.image, coordinates),
             );
         }else{
             NativeModules.RNPdfScannerManager.crop(
                 coordinates,
                 this.state.image,
-                (err, res) => this.props.updateImage(res.image, coordinates),
+                (res) => this.props.updateImage(res.image, coordinates),
             );
         }
         

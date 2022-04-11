@@ -145,7 +145,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
             WritableMap map = Arguments.createMap();
-            map.putString("image", fileName);
+            map.putString("image", "file://"+fileName);
             callback.invoke(map);
         }catch (Exception e){
             e.printStackTrace();
@@ -210,7 +210,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
             WritableMap map = Arguments.createMap();
-            map.putString("image", fileName);
+            map.putString("image", "file://"+fileName);
             callback.invoke(map);
         }catch (Exception e){
             e.printStackTrace();
@@ -263,7 +263,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
             WritableMap map = Arguments.createMap();
-            map.putString("image", fileName);
+            map.putString("image", "file://"+fileName);
             callback.invoke(map);
         }catch (Exception e){
             e.printStackTrace();
