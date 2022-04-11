@@ -232,7 +232,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
 
         WritableMap map = Arguments.createMap();
         map.putString("image", Base64.encodeToString(byteArray, Base64.DEFAULT));
-        callback.invoke(null, map);
+        callback.invoke(map);
         src.release();
         tmp.release();
         result.release();
