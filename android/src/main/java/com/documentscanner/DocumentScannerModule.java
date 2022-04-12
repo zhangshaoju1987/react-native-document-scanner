@@ -143,7 +143,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Imgcodecs.imwrite(smallFile,small);
         WritableMap map = Arguments.createMap();
         map.putString("image", "file://"+originalFile);
-        map.putString("small", "file://"+originalFile);
+        map.putString("small", "file://"+smallFile);
 
         callback.invoke(map);
         small.release();
