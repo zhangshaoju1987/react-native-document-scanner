@@ -34,4 +34,4 @@ function rotate90(imageUri,callback){
 /**
  * 导出文档扫描器和图片裁剪器
  */
-export {DocumentScanner,DocumentCropper,detectDocument,rotate90}
+export {DocumentScanner,DocumentCropper,detectDocument,rotate90,scale}
