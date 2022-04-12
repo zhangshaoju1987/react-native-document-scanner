@@ -53,9 +53,7 @@ RCT_EXPORT_METHOD(rotateImage:(NSString *)base64Img callback:(RCTResponseSenderB
     if ([base64Img hasPrefix:@"file://"]){
         NSString *parsedImageUri = [base64Img stringByReplacingOccurrencesOfString:@"file://" withString:@""];
         NSLog(@"rotateImage url is %@",parsedImageUri);
-        NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
-        CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
-        image = [UIImage imageWithCIImage:ciImage];
+        image = [UIImage imageWithContentsOfFile:parsedImageUri];
     }else{
         NSData *data = [[NSData alloc]initWithBase64EncodedString:base64Img options:NSDataBase64DecodingIgnoreUnknownCharacters];
         image = [UIImage imageWithData:data];
