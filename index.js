@@ -23,6 +23,15 @@ function rotate90(imageUri,callback){
 }
 
 /**
+ * 缩放图片
+ * @param {*} uri file://开头的uri
+ * @param {*} callback 
+ */
+ function scale(imageUri,scale,callback){
+    NativeModules.RNPdfScannerManager.scaleImage(imageUri,scale,callback);
+}
+
+/**
  * 导出文档扫描器和图片裁剪器
  */
 export {DocumentScanner,DocumentCropper,detectDocument,rotate90}

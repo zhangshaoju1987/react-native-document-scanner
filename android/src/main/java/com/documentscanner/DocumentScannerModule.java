@@ -137,16 +137,11 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             folder.mkdirs();
         }
         String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document0-" + new Date().getTime() + ".jpeg";
-        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/small_document0-" + new Date().getTime() + ".jpeg";
         Imgcodecs.imwrite(originalFile,doc);
-        Mat small = com.documentscanner.Utils.scale(doc,0.25f);
-        Imgcodecs.imwrite(smallFile,small);
         WritableMap map = Arguments.createMap();
         map.putString("image", "file://"+originalFile);
-        map.putString("small", "file://"+smallFile);
 
         callback.invoke(map);
-        small.release();
         m.release();
         src_mat.release();
         dst_mat.release();
@@ -202,16 +197,11 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             folder.mkdirs();
         }
         String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document1-" + new Date().getTime() + ".jpeg";
-        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/small_document1-" + new Date().getTime() + ".jpeg";
         Imgcodecs.imwrite(originalFile,doc);
-        Mat small = com.documentscanner.Utils.scale(doc,0.25f);
-        Imgcodecs.imwrite(smallFile,small);
         WritableMap map = Arguments.createMap();
         map.putString("image", "file://"+originalFile);
-        map.putString("small", "file://"+smallFile);
         callback.invoke(map);
 
-        small.release();
         m.release();
         src_mat.release();
         dst_mat.release();
@@ -253,19 +243,38 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             folder.mkdirs();
         }
         String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/rotate-" + new Date().getTime() + ".jpeg";
-        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/small_rotate-" + new Date().getTime() + ".jpeg";
         Imgcodecs.imwrite(originalFile, result);
-        Mat small = com.documentscanner.Utils.scale(result,0.25f);
-        Imgcodecs.imwrite(smallFile, small);
 
         WritableMap map = Arguments.createMap();
         map.putString("image", "file://"+originalFile);
-        map.putString("small", "file://"+smallFile);
 
         callback.invoke(map);
         src.release();
         tmp.release();
         result.release();
+    }
+
+    @ReactMethod
+    public void scaleImage(
+            String imageUri,
+            float scale,
+            final Callback callback) {
+
+        String folderName = "documents";
+        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/scaled_image-" + new Date().getTime() + ".jpeg";
+        Mat src = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        Mat small = com.documentscanner.Utils.scale(src,scale);
+        Imgcodecs.imwrite(smallFile, small);
+        // 返回结果
+        WritableMap map = Arguments.createMap();
+        map.putString("image", "file://"+smallFile);
+        callback.invoke(map);
+        // 释放资源
+        src.release();
         small.release();
     }
 }
