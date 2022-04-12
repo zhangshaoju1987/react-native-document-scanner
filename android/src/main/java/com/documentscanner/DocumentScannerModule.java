@@ -19,6 +19,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -214,20 +215,18 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
      * the new image as the only argument. This is a temporary file - consider using
      * CameraRollManager.saveImageWithTag to save it in the gallery.
      *
-     * @param base64Img the MediaStore URI of the image to rotate
+     * @param imageUri the MediaStore URI of the image to rotate
      * @param callback callback to be invoked when the image has been rotated; the only argument that
      *        is passed to this callback is the file:// URI of the new image
      */
     @ReactMethod
-    public void rotateImage(
-            String base64Img,
-            final Callback callback) {
+    public void rotateImage(String imageUri,final Callback callback) {
 
         Mat src = new Mat();
-        if(base64Img.startsWith("file://")){
-            src = Imgcodecs.imread(base64Img.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        if(imageUri.startsWith("file://")){
+            src = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
         }else{
-            byte [] content = Base64.decode(base64Img,Base64.DEFAULT);
+            byte [] content = Base64.decode(imageUri,Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(content,0,content.length);
             Utils.bitmapToMat(bitmap,src);
         }
@@ -255,10 +254,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void scaleImage(
-            String imageUri,
-            float scale,
-            final Callback callback) {
+    public void scaleImage(String imageUri,float scale,final Callback callback) {
 
         String folderName = "documents";
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
@@ -269,6 +265,34 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Mat src = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
         Mat small = com.documentscanner.Utils.scale(src,scale);
         Imgcodecs.imwrite(smallFile, small);
+        // 返回结果
+        WritableMap map = Arguments.createMap();
+        map.putString("image", "file://"+smallFile);
+        callback.invoke(map);
+        // 释放资源
+        src.release();
+        small.release();
+    }
+    /**
+     * 生成图片缩率图
+     * @param imageUri
+     * @param scale
+     * @param quality
+     * @param callback
+     */
+    @ReactMethod
+    public void thumbnail(String imageUri,float scale,float quality,final Callback callback) {
+
+        String folderName = "documents";
+        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/thumbnail_image-" + new Date().getTime() + ".jpeg";
+        Mat src = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
+        Mat small = com.documentscanner.Utils.scale(src,scale);
+        MatOfInt params = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, (int)(quality*100));
+        Imgcodecs.imwrite(smallFile, small, params);
         // 返回结果
         WritableMap map = Arguments.createMap();
         map.putString("image", "file://"+smallFile);
