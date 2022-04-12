@@ -49,7 +49,7 @@ function scale(imageUri,scale = 0.25,callback){
  */
 function thumbnail(imageUri,scale=0.25,quality=0.8,callback){
     if(!imageUri || !imageUri.startsWith("file://")){
-        throw new Error("图片路径必须以file://开头")
+        throw new Error("图片路径必须以file://开头");
     }
     NativeModules.RNPdfScannerManager.thumbnail(imageUri,scale,quality,callback);
 }
