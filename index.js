@@ -1,34 +1,43 @@
 import DocumentScanner from "./DocumentScanner";
 import DocumentCropper from "./DocumentCropper";
-import {NativeModules} from "react-native";
+import { NativeModules } from "react-native";
 
 
 /**
  * 检测文档边界
- * @param {string} imageUri 
- * @param {*} callback 
+ * @param {String} imageUri
+ * @param {Function} callback 
  */
 function detectDocument(imageUri,callback){
+    if(!imageUri || !imageUri.startsWith("file://")){
+        throw new Error("图片路径必须以file://开头")
+    }
     NativeModules.RNPdfScannerManager.detectDocument(imageUri,callback);
 }
 
 /**
  * 旋转图片(每次顺时针旋转90度)
  * 可以是file开头的文件路径或者是纯base64的图片内容
- * @param {*} uri 
- * @param {*} callback 
+ * @param {String} imageUri 
+ * @param {Function} callback 
  */
 function rotate90(imageUri,callback){
+    if(!imageUri || !imageUri.startsWith("file://")){
+        throw new Error("图片路径必须以file://开头")
+    }
     NativeModules.RNPdfScannerManager.rotateImage(imageUri,callback);
 }
 
 /**
  * 缩放图片
- * @param {String} uri file://开头的uri
- *  @param {Number} uri file://开头的uri
+ * @param {String} imageUri file://开头的uri
+ * @param {Number} scale file://开头的uri
  * @param {Function} callback 
  */
- function scale(imageUri,scale,callback){
+function scale(imageUri,scale = 0.25,callback){
+    if(!imageUri || !imageUri.startsWith("file://")){
+        throw new Error("图片路径必须以file://开头")
+    }
     NativeModules.RNPdfScannerManager.scaleImage(imageUri,scale,callback);
 }
 /**
@@ -39,8 +48,10 @@ function rotate90(imageUri,callback){
  * @param {Function} callback 
  */
 function thumbnail(imageUri,scale=0.25,quality=0.8,callback){
+    if(!imageUri || !imageUri.startsWith("file://")){
+        throw new Error("图片路径必须以file://开头")
+    }
     NativeModules.RNPdfScannerManager.thumbnail(imageUri,scale,quality,callback);
-
 }
 
 /**
