@@ -24,14 +24,26 @@ function rotate90(imageUri,callback){
 
 /**
  * 缩放图片
- * @param {*} uri file://开头的uri
- * @param {*} callback 
+ * @param {String} uri file://开头的uri
+ *  @param {Number} uri file://开头的uri
+ * @param {Function} callback 
  */
  function scale(imageUri,scale,callback){
     NativeModules.RNPdfScannerManager.scaleImage(imageUri,scale,callback);
+}
+/**
+ * 生成缩率图
+ * @param {String} imageUri 
+ * @param {Number} scale 
+ * @param {Number} quality 
+ * @param {Function} callback 
+ */
+function thumbnail(imageUri,scale=0.25,quality=0.8,callback){
+    NativeModules.RNPdfScannerManager.thumbnail(imageUri,scale,quality,callback);
+
 }
 
 /**
  * 导出文档扫描器和图片裁剪器
  */
-export {DocumentScanner,DocumentCropper,detectDocument,rotate90,scale}
+export {DocumentScanner,DocumentCropper,detectDocument,rotate90,scale,thumbnail}

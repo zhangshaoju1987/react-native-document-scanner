@@ -46,6 +46,27 @@ RCT_EXPORT_METHOD(stop) {
     [_scannerView stopCamera];
 }
 
+RCT_EXPORT_METHOD(thumbnail:(NSString *)imageUri scale:(float)scale quality:(float)quality callback:(RCTResponseSenderBlock)callback)
+{
+    NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    UIImage *image = [UIImage imageWithContentsOfFile:parsedImageUri];
+    
+    UIGraphicsBeginImageContext(CGSizeMake(image.size.width * scale, image.size.height * scale));
+    [image drawInRect:CGRectMake(0, 0, image.size.width * scale, image.size.height * scale)];
+    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    NSData *imageData = UIImageJPEGRepresentation(scaledImage, quality);
+    
+    NSString *dir = NSTemporaryDirectory();
+    int time = (int)[NSDate date].timeIntervalSince1970;
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"thumbnail_image_%i.jpeg",time]];
+    [imageData writeToFile:filePath atomically:YES];
+    NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
+    callback(@[@{@"image": uri}]);
+}
+
+
 RCT_EXPORT_METHOD(scaleImage:(NSString *)imageUri scale:(float)scale callback:(RCTResponseSenderBlock)callback)
 {
     NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
