@@ -129,7 +129,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
 
         Imgproc.warpPerspective(src, doc, m, doc.size());
-
+        Imgproc.cvtColor(doc, doc, Imgproc.COLOR_BGR2RGB);
 
         String folderName = "documents";
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
@@ -194,6 +194,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
 
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
         Imgproc.warpPerspective(src, doc, m, doc.size());
+        Imgproc.cvtColor(doc, doc, Imgproc.COLOR_BGR2RGB);
 
         String folderName = "documents";
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
