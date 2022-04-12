@@ -130,27 +130,28 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
 
         Imgproc.warpPerspective(src, doc, m, doc.size());
 
-        Bitmap bitmap = Bitmap.createBitmap(doc.cols(), doc.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(doc, bitmap);
 
-        m.release();
-        try{
-            String folderName = "documents";
-            File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            String fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document0-" + new Date().getTime() + ".jpeg";
-            FileOutputStream out = new FileOutputStream(fileName);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.close();
-            WritableMap map = Arguments.createMap();
-            map.putString("image", "file://"+fileName);
-            callback.invoke(map);
-        }catch (Exception e){
-            e.printStackTrace();
-            callback.invoke(Arguments.createMap());
+        String folderName = "documents";
+        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
+        String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document0-" + new Date().getTime() + ".jpeg";
+        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/small_document0-" + new Date().getTime() + ".jpeg";
+        Imgcodecs.imwrite(originalFile,doc);
+        Mat small = com.documentscanner.Utils.scale(doc,0.25f);
+        Imgcodecs.imwrite(smallFile,small);
+        WritableMap map = Arguments.createMap();
+        map.putString("image", "file://"+originalFile);
+        map.putString("small", "file://"+originalFile);
+
+        callback.invoke(map);
+        small.release();
+        m.release();
+        src_mat.release();
+        dst_mat.release();
+        src.release();
+        doc.release();
     }
 
     /**
@@ -192,31 +193,29 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
 
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
-
         Imgproc.warpPerspective(src, doc, m, doc.size());
 
-        Bitmap bitmap = Bitmap.createBitmap(doc.cols(), doc.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(doc, bitmap);
-
-        m.release();
-        try{
-            String folderName = "documents";
-            File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            String fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document1-" + new Date().getTime() + ".jpeg";
-            FileOutputStream out = new FileOutputStream(fileName);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.close();
-            WritableMap map = Arguments.createMap();
-            map.putString("image", "file://"+fileName);
-            callback.invoke(map);
-        }catch (Exception e){
-            e.printStackTrace();
-            callback.invoke(Arguments.createMap());
-
+        String folderName = "documents";
+        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
+        String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/document1-" + new Date().getTime() + ".jpeg";
+        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/small_document1-" + new Date().getTime() + ".jpeg";
+        Imgcodecs.imwrite(originalFile,doc);
+        Mat small = com.documentscanner.Utils.scale(doc,0.25f);
+        Imgcodecs.imwrite(smallFile,small);
+        WritableMap map = Arguments.createMap();
+        map.putString("image", "file://"+originalFile);
+        map.putString("small", "file://"+smallFile);
+        callback.invoke(map);
+
+        small.release();
+        m.release();
+        src_mat.release();
+        dst_mat.release();
+        src.release();
+        doc.release();
     }
 
     /**
@@ -247,27 +246,25 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         Mat result = new Mat();
         Core.flip(tmp,result,1);    // 翻转
 
-        Bitmap bitmap = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(result, bitmap);
+        String folderName = "documents";
+        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/rotate-" + new Date().getTime() + ".jpeg";
+        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/small_rotate-" + new Date().getTime() + ".jpeg";
+        Imgcodecs.imwrite(originalFile, result);
+        Mat small = com.documentscanner.Utils.scale(result,0.25f);
+        Imgcodecs.imwrite(smallFile, small);
+
+        WritableMap map = Arguments.createMap();
+        map.putString("image", "file://"+originalFile);
+        map.putString("small", "file://"+smallFile);
+
+        callback.invoke(map);
         src.release();
         tmp.release();
         result.release();
-        try{
-            String folderName = "documents";
-            File folder = new File(Environment.getExternalStorageDirectory().toString() + "/" + folderName);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            String fileName = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/rotate-" + new Date().getTime() + ".jpeg";
-            FileOutputStream out = new FileOutputStream(fileName);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.close();
-            WritableMap map = Arguments.createMap();
-            map.putString("image", "file://"+fileName);
-            callback.invoke(map);
-        }catch (Exception e){
-            e.printStackTrace();
-            callback.invoke(Arguments.createMap());
-        }
+        small.release();
     }
 }

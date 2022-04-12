@@ -22,6 +22,23 @@ import java.util.Comparator;
 
 public class Utils {
 
+
+    /**
+     * 对图片进行缩放
+     * @param src
+     * @param scale
+     * @return
+     */
+    public static Mat scale(Mat src,float scale){
+        if(scale<=0 || scale>=1.0){
+            return src.clone();
+        }
+        Mat dst=src.clone();
+        float width=src.width();
+        float height=src.height();
+        Imgproc.resize(src, dst, new Size(width*scale,height*scale));
+        return dst;
+    }
     /**
      * 检测文档边界
      * @param inputRgba
