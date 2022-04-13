@@ -23,7 +23,7 @@ function detectDocument(imageUri,callback){
  */
 function rotate90(imageUri,callback){
     if(!imageUri || !imageUri.startsWith("file://")){
-        throw new Error("图片路径必须以file://开头")
+        throw new Error(`图片路径必须以file://开头,[file://]${imageUri}`)
     }
     NativeModules.RNPdfScannerManager.rotateImage(imageUri,callback);
 }
@@ -36,7 +36,7 @@ function rotate90(imageUri,callback){
  */
 function scale(imageUri,scale = 0.25,callback){
     if(!imageUri || !imageUri.startsWith("file://")){
-        throw new Error("图片路径必须以file://开头")
+        throw new Error(`图片路径必须以file://开头,[file://]${imageUri}`)
     }
     NativeModules.RNPdfScannerManager.scaleImage(imageUri,scale,callback);
 }
@@ -49,7 +49,7 @@ function scale(imageUri,scale = 0.25,callback){
  */
 function thumbnail(imageUri,scale=0.25,quality=0.8,callback){
     if(!imageUri || !imageUri.startsWith("file://")){
-        throw new Error("图片路径必须以file://开头");
+        throw new Error(`图片路径必须以file://开头,[file://]${imageUri}`)
     }
     NativeModules.RNPdfScannerManager.thumbnail(imageUri,scale,quality,callback);
 }

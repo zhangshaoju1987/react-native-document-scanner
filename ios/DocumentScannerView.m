@@ -41,8 +41,7 @@
 
             if (initialImage.imageOrientation != UIImageOrientationUp) {
                 UIGraphicsBeginImageContextWithOptions(initialImage.size, false, initialImage.scale);
-                [initialImage drawInRect:CGRectMake(0, 0, initialImage.size.width
-                                                    , initialImage.size.height)];
+                [initialImage drawInRect:CGRectMake(0, 0, initialImage.size.width, initialImage.size.height)];
                 initialImage = UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
             }
@@ -64,19 +63,18 @@
                                     @"croppedImage": [croppedImageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength],
                                     @"initialImage": [initialImageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength],
                                     @"rectangleCoordinates": rectangleCoordinates });
-            }
-            else {
+            } else {
                 NSString *dir = NSTemporaryDirectory();
                 if (self.saveInAppDocument) {
                     dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
                 }
-               NSString *croppedFilePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"cropped_img_%i.jpeg",(int)[NSDate date].timeIntervalSince1970]];
-               NSString *initialFilePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"initial_img_%i.jpeg",(int)[NSDate date].timeIntervalSince1970]];
+                NSString *croppedFilePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"cropped_img_%i.jpeg",(int)[NSDate date].timeIntervalSince1970]];
+                NSString *initialFilePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"initial_img_%i.jpeg",(int)[NSDate date].timeIntervalSince1970]];
 
-              [croppedImageData writeToFile:croppedFilePath atomically:YES];
-              [initialImageData writeToFile:initialFilePath atomically:YES];
+               [croppedImageData writeToFile:croppedFilePath atomically:YES];
+               [initialImageData writeToFile:initialFilePath atomically:YES];
 
-               self.onPictureTaken(@{
+                self.onPictureTaken(@{
                                      @"croppedImage": croppedFilePath,
                                      @"initialImage": initialFilePath,
                                      @"rectangleCoordinates": rectangleCoordinates });

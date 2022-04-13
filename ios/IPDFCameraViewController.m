@@ -1,11 +1,3 @@
-//
-//  IPDFCameraViewController.m
-//  InstaPDF
-//
-//  Created by Maximilian Mackh on 06/01/15.
-//  Copyright (c) 2015 mackh ag. All rights reserved.
-//
-
 #import "IPDFCameraViewController.h"
 
 #import <AVFoundation/AVFoundation.h>
@@ -130,14 +122,12 @@
     AVCaptureConnection *connection = [dataOutput.connections firstObject];
     [connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
 
-    if (device.isFlashAvailable)
-    {
+    if (device.isFlashAvailable) {
         [device lockForConfiguration:nil];
         [device setFlashMode:AVCaptureFlashModeOff];
         [device unlockForConfiguration];
 
-        if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
-        {
+        if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
             [device lockForConfiguration:nil];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
             [device unlockForConfiguration];
@@ -153,10 +143,7 @@
     UIVisualEffectView *viewWithBlurredBackground =[[UIVisualEffectView alloc] initWithEffect:effect];
     viewWithBlurredBackground.frame = self.bounds;
     [self insertSubview:viewWithBlurredBackground aboveSubview:_glkView];
-
     _cameraViewType = cameraViewType;
-
-
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^
     {
         [viewWithBlurredBackground removeFromSuperview];
@@ -169,40 +156,28 @@
     if (_isStopped || _isCapturing || !CMSampleBufferIsValid(sampleBuffer)) return;
 
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-
-    if (self.cameraViewType != IPDFCameraViewTypeNormal)
-    {
+    if (self.cameraViewType != IPDFCameraViewTypeNormal) {
         image = [self filteredImageUsingEnhanceFilterOnImage:image];
-    }
-    else
-    {
+    } else {
         image = [self filteredImageUsingContrastFilterOnImage:image];
     }
 
-    if (self.isBorderDetectionEnabled)
-    {
-        if (_borderDetectFrame)
-        {
+    if (self.isBorderDetectionEnabled){
+        if (_borderDetectFrame) {
             _borderDetectLastRectangleFeature = [self biggestRectangleInRectangles:[[self highAccuracyRectangleDetector] featuresInImage:image]];
             _borderDetectFrame = NO;
         }
 
-        if (_borderDetectLastRectangleFeature)
-        {
+        if (_borderDetectLastRectangleFeature) {
             _imageDedectionConfidence += .5;
-
             image = [self drawHighlightOverlayForPoints:image topLeft:_borderDetectLastRectangleFeature.topLeft topRight:_borderDetectLastRectangleFeature.topRight bottomLeft:_borderDetectLastRectangleFeature.bottomLeft bottomRight:_borderDetectLastRectangleFeature.bottomRight];
-        }
-        else
-        {
+        } else {
             _imageDedectionConfidence = 0.0f;
         }
     }
 
-    if (self.context && _coreImageContext)
-    {
+    if (self.context && _coreImageContext) {
         [_coreImageContext drawImage:image inRect:self.bounds fromRect:image.extent];
         [self.context presentRenderbuffer:GL_RENDERBUFFER];
 
@@ -247,29 +222,24 @@
 
 - (void)stop
 {
+    if(_isStopped == YES) {
+        return;
+    }
     _isStopped = YES;
-
     [self.captureSession stopRunning];
-
     [_borderDetectTimeKeeper invalidate];
-
     [self hideGLKView:YES completion:nil];
 }
 
 - (void)setEnableTorch:(BOOL)enableTorch
 {
     _enableTorch = enableTorch;
-
     AVCaptureDevice *device = self.captureDevice;
-    if ([device hasTorch] && [device hasFlash])
-    {
+    if ([device hasTorch] && [device hasFlash]) {
         [device lockForConfiguration:nil];
-        if (enableTorch)
-        {
+        if (enableTorch) {
             [device setTorchMode:AVCaptureTorchModeOn];
-        }
-        else
-        {
+        } else {
             [device setTorchMode:AVCaptureTorchModeOff];
         }
         [device unlockForConfiguration];
@@ -279,15 +249,17 @@
 - (void)setUseFrontCam:(BOOL)useFrontCam
 {
     _useFrontCam = useFrontCam;
-    [self stop];
+    if(_isStopped == NO){
+        [self stop];
+    }
     [self setupCameraView];
+    NSLog(@"[start]setUseFrontCam");
     [self start];
 }
 
 
 - (void)setContrast:(float)contrast
 {
-
     _contrast = contrast;
 }
 
@@ -314,29 +286,22 @@
     CGSize frameSize = self.bounds.size;
     pointOfInterest = CGPointMake(point.y / frameSize.height, 1.f - (point.x / frameSize.width));
 
-    if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeAutoFocus])
-    {
+    if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
         NSError *error;
-        if ([device lockForConfiguration:&error])
-        {
-            if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
-            {
+        if ([device lockForConfiguration:&error]) {
+            if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
                 [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
                 [device setFocusPointOfInterest:pointOfInterest];
             }
 
-            if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
-            {
+            if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
                 [device setExposurePointOfInterest:pointOfInterest];
                 [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
                 completionHandler();
             }
-
             [device unlockForConfiguration];
         }
-    }
-    else
-    {
+    } else {
         completionHandler();
     }
 }
@@ -346,7 +311,6 @@
     if (_isCapturing) return;
 
     __weak typeof(self) weakSelf = self;
-
     [weakSelf hideGLKView:YES completion:^
     {
         [weakSelf hideGLKView:NO completion:^
@@ -356,14 +320,10 @@
     }];
 
     _isCapturing = YES;
-
     AVCaptureConnection *videoConnection = nil;
-    for (AVCaptureConnection *connection in self.stillImageOutput.connections)
-    {
-        for (AVCaptureInputPort *port in [connection inputPorts])
-        {
-            if ([[port mediaType] isEqual:AVMediaTypeVideo] )
-            {
+    for (AVCaptureConnection *connection in self.stillImageOutput.connections) {
+        for (AVCaptureInputPort *port in [connection inputPorts]) {
+            if ([[port mediaType] isEqual:AVMediaTypeVideo] ) {
                 videoConnection = connection;
                 break;
             }
@@ -374,17 +334,11 @@
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error)
      {
          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-
-         if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite || weakSelf.isBorderDetectionEnabled)
-         {
+         if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite || weakSelf.isBorderDetectionEnabled) {
              CIImage *enhancedImage = [CIImage imageWithData:imageData];
-
-             if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite)
-             {
+             if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite) {
                  enhancedImage = [self filteredImageUsingEnhanceFilterOnImage:enhancedImage];
-             }
-             else
-             {
+             } else {
                  enhancedImage = [self filteredImageUsingContrastFilterOnImage:enhancedImage];
              }
 
@@ -411,9 +365,7 @@
                  completionHandler(initialImage, initialImage, nil);
              }
 
-         }
-         else
-         {
+         } else {
              [weakSelf hideGLKView:NO completion:nil];
              UIImage *initialImage = [UIImage imageWithData:imageData];
              completionHandler(initialImage, initialImage, nil);
@@ -438,6 +390,7 @@
 
 - (CIImage *)filteredImageUsingEnhanceFilterOnImage:(CIImage *)image
 {
+    NSLog(@"[start]filteredImageUsingEnhanceFilterOnImage");
     [self start];
     return [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", @(self.brightness), @"inputContrast", @(self.contrast), @"inputSaturation", @(self.saturation), nil].outputImage;
 }
@@ -454,7 +407,6 @@
   CGPoint newRight = CGPointMake(rectangleFeature.topRight.x, rectangleFeature.topRight.y);
   CGPoint newBottomLeft = CGPointMake(rectangleFeature.bottomLeft.x + 30, rectangleFeature.bottomLeft.y);
   CGPoint newBottomRight = CGPointMake(rectangleFeature.bottomRight.x, rectangleFeature.bottomRight.y);
-
 
   rectangleCoordinates[@"inputTopLeft"] = [CIVector vectorWithCGPoint:newLeft];
   rectangleCoordinates[@"inputTopRight"] = [CIVector vectorWithCGPoint:newRight];
@@ -488,13 +440,9 @@
 - (CIRectangleFeature *)biggestRectangleInRectangles:(NSArray *)rectangles
 {
     if (![rectangles count]) return nil;
-
     float halfPerimiterValue = 0;
-
     CIRectangleFeature *biggestRectangle = [rectangles firstObject];
-
-    for (CIRectangleFeature *rect in rectangles)
-    {
+    for (CIRectangleFeature *rect in rectangles) {
         CGPoint p1 = rect.topLeft;
         CGPoint p2 = rect.topRight;
         CGFloat width = hypotf(p1.x - p2.x, p1.y - p2.y);
@@ -505,8 +453,7 @@
 
         CGFloat currentHalfPerimiterValue = height + width;
 
-        if (halfPerimiterValue < currentHalfPerimiterValue)
-        {
+        if (halfPerimiterValue < currentHalfPerimiterValue) {
             halfPerimiterValue = currentHalfPerimiterValue;
             biggestRectangle = rect;
         }

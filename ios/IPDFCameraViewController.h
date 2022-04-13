@@ -1,11 +1,3 @@
-//
-//  IPDFCameraViewController.h
-//  InstaPDF
-//
-//  Created by Maximilian Mackh on 06/01/15.
-//  Copyright (c) 2015 mackh ag. All rights reserved.
-//
-
 #import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSInteger,IPDFCameraViewType)
@@ -47,9 +39,9 @@ typedef NS_ENUM(NSInteger, IPDFRectangeType)
 - (void)captureImageWithCompletionHander:(void(^)(UIImage *data, UIImage *initialData, CIRectangleFeature *rectangleFeature))completionHandler;
 
 @property (nonatomic, strong) UIColor* overlayColor;
-@property (nonatomic, assign) float saturation;
-@property (nonatomic, assign) float contrast;
-@property (nonatomic, assign) float brightness;
+@property (nonatomic, assign) float saturation;// 饱和度
+@property (nonatomic, assign) float contrast;// 对比度
+@property (nonatomic, assign) float brightness;// 亮度
 @property (nonatomic, assign) NSInteger detectionRefreshRateInMS;
 
 
