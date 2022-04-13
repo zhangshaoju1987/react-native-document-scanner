@@ -59,8 +59,10 @@ RCT_EXPORT_METHOD(thumbnail:(NSString *)imageUri scale:(float)scale quality:(flo
     NSData *imageData = UIImageJPEGRepresentation(scaledImage, quality);
     
     NSString *dir = NSTemporaryDirectory();
-    int time = (int)[NSDate date].timeIntervalSince1970;
-    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"thumbnail_image_%i.jpeg",time]];
+    NSUUID *uuid = [NSUUID UUID];
+    NSString *time = [uuid UUIDString];
+
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"thumbnail_image_%@.jpeg",time]];
     [imageData writeToFile:filePath atomically:YES];
     NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
     callback(@[@{@"image": uri}]);
@@ -80,8 +82,9 @@ RCT_EXPORT_METHOD(scaleImage:(NSString *)imageUri scale:(float)scale callback:(R
     NSData *imageToEncode = UIImageJPEGRepresentation(scaledImage, 1.0);
     
     NSString *dir = NSTemporaryDirectory();
-    int time = (int)[NSDate date].timeIntervalSince1970;
-    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"scaled_image_%i.jpeg",time]];
+    NSUUID *uuid = [NSUUID UUID];
+    NSString *time = [uuid UUIDString];
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"scaled_image_%@.jpeg",time]];
     [imageToEncode writeToFile:filePath atomically:YES];
     NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
     callback(@[@{@"image": uri}]);
@@ -125,8 +128,9 @@ RCT_EXPORT_METHOD(rotateImage:(NSString *)base64Img callback:(RCTResponseSenderB
     NSData *imageToEncode = UIImageJPEGRepresentation(rotatedImage, 1.0);
     
     NSString *dir = NSTemporaryDirectory();
-    int time = (int)[NSDate date].timeIntervalSince1970;
-    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"rotate_%i.jpeg",time]];
+    NSUUID *uuid = [NSUUID UUID];
+    NSString *time = [uuid UUIDString];
+    NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"rotate_%@.jpeg",time]];
     [imageToEncode writeToFile:filePath atomically:YES];
     NSString *uri = [NSString stringWithFormat:@"%@%@",@"file://",filePath];
     callback(@[@{@"image": uri}]);

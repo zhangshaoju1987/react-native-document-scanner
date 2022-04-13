@@ -23,10 +23,7 @@ import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.UUID;
 
@@ -230,7 +227,7 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             Bitmap bitmap = BitmapFactory.decodeByteArray(content,0,content.length);
             Utils.bitmapToMat(bitmap,src);
         }
-        
+
         Mat tmp = new Mat();
         Core.transpose(src,tmp);    // 转置
         Mat result = new Mat();
@@ -241,11 +238,12 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        String originalFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/rotate-" + new Date().getTime() + ".jpeg";
-        Imgcodecs.imwrite(originalFile, result);
+        String fileName = UUID.randomUUID().toString()+".jpeg";
+        String rotatedFilePath = Environment.getExternalStorageDirectory().toString() + "/" + folderName + File.separator +fileName;
+        Imgcodecs.imwrite(rotatedFilePath, result);
 
         WritableMap map = Arguments.createMap();
-        map.putString("image", "file://"+originalFile);
+        map.putString("image", "file://"+rotatedFilePath);
 
         callback.invoke(map);
         src.release();
@@ -261,13 +259,14 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/scaled_image-" + new Date().getTime() + ".jpeg";
+        String fileName = UUID.randomUUID().toString()+".jpeg";
+        String scaledFilePath = Environment.getExternalStorageDirectory().toString() + "/" + folderName + File.separator + fileName;
         Mat src = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
         Mat small = com.documentscanner.Utils.scale(src,scale);
-        Imgcodecs.imwrite(smallFile, small);
+        Imgcodecs.imwrite(scaledFilePath, small);
         // 返回结果
         WritableMap map = Arguments.createMap();
-        map.putString("image", "file://"+smallFile);
+        map.putString("image", "file://"+scaledFilePath);
         callback.invoke(map);
         // 释放资源
         src.release();
@@ -288,14 +287,15 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        String smallFile = Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/thumbnail_image-" + new Date().getTime() + ".jpeg";
+        String fileName = UUID.randomUUID().toString()+".jpeg";
+        String thumbnailFilePath = Environment.getExternalStorageDirectory().toString() + "/" + folderName + File.separator + fileName;
         Mat src = Imgcodecs.imread(imageUri.replace("file://", ""), Imgproc.COLOR_BGR2RGB);
         Mat small = com.documentscanner.Utils.scale(src,scale);
         MatOfInt params = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, (int)(quality*100));
-        Imgcodecs.imwrite(smallFile, small, params);
+        Imgcodecs.imwrite(thumbnailFilePath, small, params);
         // 返回结果
         WritableMap map = Arguments.createMap();
-        map.putString("image", "file://"+smallFile);
+        map.putString("image", "file://"+thumbnailFilePath);
         callback.invoke(map);
         // 释放资源
         src.release();
