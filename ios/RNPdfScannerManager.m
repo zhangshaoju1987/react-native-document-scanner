@@ -43,6 +43,7 @@ RCT_EXPORT_METHOD(capture) {
 
 RCT_EXPORT_METHOD(stop) {
 
+    NSLog(@"停止相机扫描");
     [_scannerView stopCamera];
 }
 
@@ -58,7 +59,7 @@ RCT_EXPORT_METHOD(thumbnail:(NSString *)imageUri scale:(float)scale quality:(flo
     
     NSData *imageData = UIImageJPEGRepresentation(scaledImage, quality);
     
-    NSString *dir = NSTemporaryDirectory();
+    NSString *dir = NSSearchPathForDirectoriesInDomains ( NSDocumentDirectory , NSUserDomainMask , YES ).firstObject;
     NSUUID *uuid = [NSUUID UUID];
     NSString *time = [uuid UUIDString];
 
@@ -81,7 +82,7 @@ RCT_EXPORT_METHOD(scaleImage:(NSString *)imageUri scale:(float)scale callback:(R
     
     NSData *imageToEncode = UIImageJPEGRepresentation(scaledImage, 1.0);
     
-    NSString *dir = NSTemporaryDirectory();
+    NSString *dir = NSSearchPathForDirectoriesInDomains ( NSDocumentDirectory , NSUserDomainMask , YES ).firstObject;
     NSUUID *uuid = [NSUUID UUID];
     NSString *time = [uuid UUIDString];
     NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"scaled_image_%@.jpeg",time]];
@@ -127,7 +128,7 @@ RCT_EXPORT_METHOD(rotateImage:(NSString *)base64Img callback:(RCTResponseSenderB
     UIGraphicsEndImageContext();
     NSData *imageToEncode = UIImageJPEGRepresentation(rotatedImage, 1.0);
     
-    NSString *dir = NSTemporaryDirectory();
+    NSString *dir = NSSearchPathForDirectoriesInDomains ( NSDocumentDirectory , NSUserDomainMask , YES ).firstObject;
     NSUUID *uuid = [NSUUID UUID];
     NSString *time = [uuid UUIDString];
     NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"rotate_%@.jpeg",time]];
@@ -190,35 +191,36 @@ RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri call
     NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
     CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
-    
+
     CGPoint newLeft = CGPointMake([points[@"topLeft"][@"x"] floatValue], [points[@"topLeft"][@"y"] floatValue]);
     CGPoint newRight = CGPointMake([points[@"topRight"][@"x"] floatValue], [points[@"topRight"][@"y"] floatValue]);
     CGPoint newBottomLeft = CGPointMake([points[@"bottomLeft"][@"x"] floatValue], [points[@"bottomLeft"][@"y"] floatValue]);
     CGPoint newBottomRight = CGPointMake([points[@"bottomRight"][@"x"] floatValue], [points[@"bottomRight"][@"y"] floatValue]);
-    
+
     newLeft = [self cartesianForPoint:newLeft height:[points[@"height"] floatValue] ];
     newRight = [self cartesianForPoint:newRight height:[points[@"height"] floatValue] ];
     newBottomLeft = [self cartesianForPoint:newBottomLeft height:[points[@"height"] floatValue] ];
     newBottomRight = [self cartesianForPoint:newBottomRight height:[points[@"height"] floatValue] ];
-    
-    
-    
+
+
+
     NSMutableDictionary *rectangleCoordinates = [[NSMutableDictionary alloc] init];
-    
+
     rectangleCoordinates[@"inputTopLeft"] = [CIVector vectorWithCGPoint:newLeft];
     rectangleCoordinates[@"inputTopRight"] = [CIVector vectorWithCGPoint:newRight];
     rectangleCoordinates[@"inputBottomLeft"] = [CIVector vectorWithCGPoint:newBottomLeft];
     rectangleCoordinates[@"inputBottomRight"] = [CIVector vectorWithCGPoint:newBottomRight];
-    
+
     ciImage = [ciImage imageByApplyingFilter:@"CIPerspectiveCorrection" withInputParameters:rectangleCoordinates];
-    
+
     CIContext *context = [CIContext contextWithOptions:nil];
     CGImageRef cgimage = [context createCGImage:ciImage fromRect:[ciImage extent]];
     UIImage *image = [UIImage imageWithCGImage:cgimage];
-    
     NSData *imageToEncode = UIImageJPEGRepresentation(image, 1.0);
     
-    NSString *dir = NSTemporaryDirectory();
+    CGImageRelease(cgimage);
+
+    NSString *dir = NSSearchPathForDirectoriesInDomains ( NSDocumentDirectory , NSUserDomainMask , YES ).firstObject;
     int time = (int)[NSDate date].timeIntervalSince1970;
     NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"document0_%i.jpeg",time]];
     [imageToEncode writeToFile:filePath atomically:YES];
@@ -257,10 +259,12 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri
     CIContext *context = [CIContext contextWithOptions:nil];
     CGImageRef cgimage = [context createCGImage:ciImage fromRect:[ciImage extent]];
     UIImage *image = [UIImage imageWithCGImage:cgimage];
-    
+
     NSData *imageToEncode = UIImageJPEGRepresentation(image, 1.0);
+    CGImageRelease(cgimage);
+
     
-    NSString *dir = NSTemporaryDirectory();
+    NSString *dir = NSSearchPathForDirectoriesInDomains ( NSDocumentDirectory , NSUserDomainMask , YES ).firstObject;
     int time = (int)[NSDate date].timeIntervalSince1970;
     NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"document0_%i.jpeg",time]];
     [imageToEncode writeToFile:filePath atomically:YES];
