@@ -25,9 +25,7 @@
     CIContext *_coreImageContext;
     GLuint _renderBuffer;
     GLKView *_glkView;
-
     BOOL _isStopped;
-
     CGFloat _imageDedectionConfidence;
     NSTimer *_borderDetectTimeKeeper;
     BOOL _borderDetectFrame;
@@ -82,24 +80,32 @@
 - (void)setupCameraView
 {
     [self createGLKView];
+    AVCaptureDeviceDiscoverySession *deviceDiscoverySession = nil;
+    if(self.useFrontCam){
+        // 找到所有前置摄像头
+        deviceDiscoverySession = [AVCaptureDeviceDiscoverySession  discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera] mediaType:AVMediaTypeVideo position: AVCaptureDevicePositionFront];
+    }else{
+        // 找到所有后置摄像头
+        deviceDiscoverySession = [AVCaptureDeviceDiscoverySession  discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera] mediaType:AVMediaTypeVideo position: AVCaptureDevicePositionBack];
+    }
 
     AVCaptureDevice *device = nil;
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    NSArray *devices = deviceDiscoverySession.devices;
     for (AVCaptureDevice *possibleDevice in devices) {
         if (self.useFrontCam) {
             if ([possibleDevice position] == AVCaptureDevicePositionFront) {
                 device = possibleDevice;
+                break;
             }
         } else {
-            if ([possibleDevice position] != AVCaptureDevicePositionFront) {
+            if ([possibleDevice position] == AVCaptureDevicePositionBack) {
                 device = possibleDevice;
+                break;
             }
         }
     }
     if (!device) return;
-
     _imageDedectionConfidence = 0.0;
-
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
     self.captureSession = session;
     [session beginConfiguration];
@@ -122,18 +128,17 @@
     AVCaptureConnection *connection = [dataOutput.connections firstObject];
     [connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
 
-    if (device.isFlashAvailable) {
+    if (device.isFlashAvailable){
         [device lockForConfiguration:nil];
         [device setFlashMode:AVCaptureFlashModeOff];
         [device unlockForConfiguration];
 
-        if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+        if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
             [device lockForConfiguration:nil];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
             [device unlockForConfiguration];
         }
     }
-
     [session commitConfiguration];
 }
 
@@ -154,33 +159,33 @@
 {
     if (self.forceStop) return;
     if (_isStopped || _isCapturing || !CMSampleBufferIsValid(sampleBuffer)) return;
-
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-    if (self.cameraViewType != IPDFCameraViewTypeNormal) {
+    if (self.cameraViewType != IPDFCameraViewTypeNormal){
         image = [self filteredImageUsingEnhanceFilterOnImage:image];
-    } else {
+    }else{
         image = [self filteredImageUsingContrastFilterOnImage:image];
     }
 
     if (self.isBorderDetectionEnabled){
-        if (_borderDetectFrame) {
+        if (_borderDetectFrame){
             _borderDetectLastRectangleFeature = [self biggestRectangleInRectangles:[[self highAccuracyRectangleDetector] featuresInImage:image]];
             _borderDetectFrame = NO;
         }
 
-        if (_borderDetectLastRectangleFeature) {
+        if (_borderDetectLastRectangleFeature){
             _imageDedectionConfidence += .5;
+
             image = [self drawHighlightOverlayForPoints:image topLeft:_borderDetectLastRectangleFeature.topLeft topRight:_borderDetectLastRectangleFeature.topRight bottomLeft:_borderDetectLastRectangleFeature.bottomLeft bottomRight:_borderDetectLastRectangleFeature.bottomRight];
-        } else {
+        }else{
             _imageDedectionConfidence = 0.0f;
         }
     }
 
-    if (self.context && _coreImageContext) {
+    if (self.context && _coreImageContext)
+    {
         [_coreImageContext drawImage:image inRect:self.bounds fromRect:image.extent];
         [self.context presentRenderbuffer:GL_RENDERBUFFER];
-
         [_glkView setNeedsDisplay];
     }
 }
@@ -202,9 +207,7 @@
 - (void)start
 {
     _isStopped = NO;
-
     [self.captureSession startRunning];
-
     float detectionRefreshRate = _detectionRefreshRateInMS;
     CGFloat detectionRefreshRateInSec = detectionRefreshRate/100;
 
@@ -214,17 +217,12 @@
         }
         _borderDetectTimeKeeper = [NSTimer scheduledTimerWithTimeInterval:detectionRefreshRateInSec target:self selector:@selector(enableBorderDetectFrame) userInfo:nil repeats:YES];
     }
-
     [self hideGLKView:NO completion:nil];
-
     _lastDetectionRate = _detectionRefreshRateInMS;
 }
 
 - (void)stop
 {
-    if(_isStopped == YES) {
-        return;
-    }
     _isStopped = YES;
     [self.captureSession stopRunning];
     [_borderDetectTimeKeeper invalidate];
@@ -235,11 +233,12 @@
 {
     _enableTorch = enableTorch;
     AVCaptureDevice *device = self.captureDevice;
-    if ([device hasTorch] && [device hasFlash]) {
+    if ([device hasTorch] && [device hasFlash])
+    {
         [device lockForConfiguration:nil];
-        if (enableTorch) {
+        if (enableTorch){
             [device setTorchMode:AVCaptureTorchModeOn];
-        } else {
+        }else{
             [device setTorchMode:AVCaptureTorchModeOff];
         }
         [device unlockForConfiguration];
@@ -249,17 +248,14 @@
 - (void)setUseFrontCam:(BOOL)useFrontCam
 {
     _useFrontCam = useFrontCam;
-    if(_isStopped == NO){
-        [self stop];
-    }
+    [self stop];
     [self setupCameraView];
-    NSLog(@"[start]setUseFrontCam");
     [self start];
 }
 
-
 - (void)setContrast:(float)contrast
 {
+
     _contrast = contrast;
 }
 
@@ -286,22 +282,23 @@
     CGSize frameSize = self.bounds.size;
     pointOfInterest = CGPointMake(point.y / frameSize.height, 1.f - (point.x / frameSize.width));
 
-    if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+    if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]){
         NSError *error;
-        if ([device lockForConfiguration:&error]) {
-            if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+        if ([device lockForConfiguration:&error]){
+            if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
                 [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
                 [device setFocusPointOfInterest:pointOfInterest];
             }
 
-            if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) {
+            if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
                 [device setExposurePointOfInterest:pointOfInterest];
                 [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
                 completionHandler();
             }
+
             [device unlockForConfiguration];
         }
-    } else {
+    }else{
         completionHandler();
     }
 }
@@ -309,7 +306,6 @@
 - (void)captureImageWithCompletionHander:(void(^)(id data, id initialData, CIRectangleFeature *rectangleFeature))completionHandler
 {
     if (_isCapturing) return;
-
     __weak typeof(self) weakSelf = self;
     [weakSelf hideGLKView:YES completion:^
     {
@@ -321,9 +317,9 @@
 
     _isCapturing = YES;
     AVCaptureConnection *videoConnection = nil;
-    for (AVCaptureConnection *connection in self.stillImageOutput.connections) {
-        for (AVCaptureInputPort *port in [connection inputPorts]) {
-            if ([[port mediaType] isEqual:AVMediaTypeVideo] ) {
+    for (AVCaptureConnection *connection in self.stillImageOutput.connections){
+        for (AVCaptureInputPort *port in [connection inputPorts]){
+            if ([[port mediaType] isEqual:AVMediaTypeVideo] ){
                 videoConnection = connection;
                 break;
             }
@@ -331,23 +327,22 @@
         if (videoConnection) break;
     }
 
-    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error)
-     {
+    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error){
          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-         if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite || weakSelf.isBorderDetectionEnabled) {
+
+         if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite || weakSelf.isBorderDetectionEnabled){
              CIImage *enhancedImage = [CIImage imageWithData:imageData];
-             if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite) {
+
+             if (weakSelf.cameraViewType == IPDFCameraViewTypeBlackAndWhite){
                  enhancedImage = [self filteredImageUsingEnhanceFilterOnImage:enhancedImage];
-             } else {
+             }else{
                  enhancedImage = [self filteredImageUsingContrastFilterOnImage:enhancedImage];
              }
 
-             if (weakSelf.isBorderDetectionEnabled && rectangleDetectionConfidenceHighEnough(_imageDedectionConfidence))
-             {
+             if (weakSelf.isBorderDetectionEnabled && rectangleDetectionConfidenceHighEnough(self->_imageDedectionConfidence)){
                  CIRectangleFeature *rectangleFeature = [self biggestRectangleInRectangles:[[self highAccuracyRectangleDetector] featuresInImage:enhancedImage]];
 
-                 if (rectangleFeature)
-                 {
+                 if (rectangleFeature){
                      enhancedImage = [self correctPerspectiveForImage:enhancedImage withFeatures:rectangleFeature];
 
                      UIGraphicsBeginImageContext(CGSizeMake(enhancedImage.extent.size.height, enhancedImage.extent.size.width));
@@ -364,14 +359,14 @@
                  UIImage *initialImage = [UIImage imageWithData:imageData];
                  completionHandler(initialImage, initialImage, nil);
              }
-
-         } else {
+         }
+         else {
              [weakSelf hideGLKView:NO completion:nil];
              UIImage *initialImage = [UIImage imageWithData:imageData];
              completionHandler(initialImage, initialImage, nil);
          }
 
-         _isCapturing = NO;
+        self->_isCapturing = NO;
      }];
 }
 
@@ -379,7 +374,7 @@
 {
     [UIView animateWithDuration:0.1 animations:^
     {
-        _glkView.alpha = (hidden) ? 0.0 : 1.0;
+        self->_glkView.alpha = (hidden) ? 0.0 : 1.0;
     }
     completion:^(BOOL finished)
     {
@@ -390,7 +385,6 @@
 
 - (CIImage *)filteredImageUsingEnhanceFilterOnImage:(CIImage *)image
 {
-    NSLog(@"[start]filteredImageUsingEnhanceFilterOnImage");
     [self start];
     return [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", @(self.brightness), @"inputContrast", @(self.contrast), @"inputSaturation", @(self.saturation), nil].outputImage;
 }
@@ -442,7 +436,7 @@
     if (![rectangles count]) return nil;
     float halfPerimiterValue = 0;
     CIRectangleFeature *biggestRectangle = [rectangles firstObject];
-    for (CIRectangleFeature *rect in rectangles) {
+    for (CIRectangleFeature *rect in rectangles){
         CGPoint p1 = rect.topLeft;
         CGPoint p2 = rect.topRight;
         CGFloat width = hypotf(p1.x - p2.x, p1.y - p2.y);
@@ -453,7 +447,7 @@
 
         CGFloat currentHalfPerimiterValue = height + width;
 
-        if (halfPerimiterValue < currentHalfPerimiterValue) {
+        if (halfPerimiterValue < currentHalfPerimiterValue){
             halfPerimiterValue = currentHalfPerimiterValue;
             biggestRectangle = rect;
         }
