@@ -43,7 +43,7 @@ public class Utils {
      * 检测文档边界
      * @param inputRgba
      */
-    public static WritableMap detectDocumentEdgeFromImage(Mat inputRgba){
+    public static WritableMap detectDocumentEdgeFromImage(Mat inputRgba,float scale){
 
         ArrayList<MatOfPoint> contours = findContours(inputRgba);
         Quadrilateral quad = getQuadrilateral(contours, inputRgba.size());
@@ -59,17 +59,17 @@ public class Utils {
             bottomRight.putDouble("x", 1000);bottomRight.putDouble("y", 900);
             bottomLeft.putDouble("x", 200);bottomLeft.putDouble("y", 900);
         }else {
-            topLeft.putDouble("x", quad.points[0].x);
-            topLeft.putDouble("y", quad.points[0].y);
+            topLeft.putDouble("x", quad.points[0].x/scale);
+            topLeft.putDouble("y", quad.points[0].y/scale);
 
-            topRight.putDouble("x", quad.points[1].x);
-            topRight.putDouble("y", quad.points[1].y);
+            topRight.putDouble("x", quad.points[1].x/scale);
+            topRight.putDouble("y", quad.points[1].y/scale);
 
-            bottomRight.putDouble("x", quad.points[2].x);
-            bottomRight.putDouble("y", quad.points[2].y);
+            bottomRight.putDouble("x", quad.points[2].x/scale);
+            bottomRight.putDouble("y", quad.points[2].y/scale);
 
-            bottomLeft.putDouble("x", quad.points[3].x);
-            bottomLeft.putDouble("y", quad.points[3].y);
+            bottomLeft.putDouble("x", quad.points[3].x/scale);
+            bottomLeft.putDouble("y", quad.points[3].y/scale);
         }
         rectangleCoordinates.putMap("topLeft", topLeft);
         rectangleCoordinates.putMap("topRight", topRight);

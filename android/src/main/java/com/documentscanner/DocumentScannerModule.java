@@ -62,9 +62,12 @@ public class DocumentScannerModule extends ReactContextBaseJavaModule{
             int width = picture.width();
             int height = picture.height();
             Log.i("detectDocument","原始图片尺寸:width="+picture.width()+"height="+picture.height());
-            Mat img = picture.clone();
+            float scale = (float)500.00/width;
+            Mat img = com.documentscanner.Utils.scale(picture,scale);
+            Log.i("detectDocument","缩放图片尺寸:width="+img.width()+"height="+img.height());
+
             picture.release();// 及时释放
-            WritableMap rectangleCoordinates = com.documentscanner.Utils.detectDocumentEdgeFromImage(img);
+            WritableMap rectangleCoordinates = com.documentscanner.Utils.detectDocumentEdgeFromImage(img,scale);
             img.release();// 及时释放
             WritableMap size = new WritableNativeMap();
             size.putDouble("width",  width);
