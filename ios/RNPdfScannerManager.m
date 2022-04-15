@@ -143,8 +143,14 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
     NSLog(@"url is %@",imageUri);
     NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
     CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
-    CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeRectangle context:nil options:@{CIDetectorAccuracy : CIDetectorAccuracyHigh, CIDetectorReturnSubFeatures: @(YES) }];
+    UIImage *uiImage = [UIImage imageWithContentsOfFile:parsedImageUri];
 
+    NSDictionary *p = ciImage.properties;
+    NSLog(@"UIImage width=%.20f,height=%.20f",uiImage.size.width,uiImage.size.height);
+    float pixelWidth = [p[@"PixelWidth"] floatValue];
+    
+    
+    CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeRectangle context:nil options:@{CIDetectorAccuracy : CIDetectorAccuracyHigh, CIDetectorReturnSubFeatures: @(YES) }];
     // 获取矩形区域数组
     NSArray <CIFeature *>*rectangles = [detector featuresInImage:ciImage];
     CIRectangleFeature *rectangleFeature = nil;
@@ -152,11 +158,8 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
         
         // 最大矩形区域
         rectangleFeature = (CIRectangleFeature *)rectangles.firstObject;
-        
         CGFloat rectangleRect = 0;
-        
         for (CIRectangleFeature *rect in rectangles) {
-            
             CGPoint p1 = rect.topLeft;
             CGPoint p2 = rect.topRight;
             CGFloat width = hypotf(p1.x - p2.x, p1.y - p2.y);
@@ -166,24 +169,40 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
             CGFloat height = hypotf(p3.x - p4.x, p3.y - p4.y);
             
             CGFloat currentRectangleRect = height + width;
-            
             // 获取最大矩形rect
             if (rectangleRect < currentRectangleRect) {
-                
                 rectangleRect = currentRectangleRect;
                 rectangleFeature = rect;
             }
         }
     }
-    NSDictionary *rectangleCoordinates = rectangleFeature ? @{
-                             @"topLeft": @{ @"y": @(rectangleFeature.bottomLeft.x + 30), @"x": @(rectangleFeature.bottomLeft.y)},
-                             @"topRight": @{ @"y": @(rectangleFeature.topLeft.x + 30), @"x": @(rectangleFeature.topLeft.y)},
-                             @"bottomLeft": @{ @"y": @(rectangleFeature.bottomRight.x), @"x": @(rectangleFeature.bottomRight.y)},
-                             @"bottomRight": @{ @"y": @(rectangleFeature.topRight.x), @"x": @(rectangleFeature.topRight.y)},
-                             } : [NSDictionary dictionary];
-    
-    NSDictionary * p = ciImage.properties;
-    callback(@[@{@"success":@YES,@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":p[@"PixelHeight"],@"height":p[@"PixelWidth"]}}]);
+    NSDictionary *rectangleCoordinates = nil;
+    if(pixelWidth == uiImage.size.width){
+        CGRect rect = CGRectMake(0, 0, uiImage.size.width, uiImage.size.height);
+        CGAffineTransform transform = CGAffineTransformMakeTranslation(0.f, CGRectGetHeight(rect));
+        transform = CGAffineTransformScale(transform, 1, -1);
+        NSLog(@"仿射变换之前topLeft.x=%f,topLeft.y=%f",rectangleFeature.topLeft.x,rectangleFeature.topLeft.y);
+        CGPoint topLeft = CGPointApplyAffineTransform(rectangleFeature.topLeft, transform);
+        CGPoint topRight = CGPointApplyAffineTransform(rectangleFeature.topRight, transform);
+        CGPoint bottomRight = CGPointApplyAffineTransform(rectangleFeature.bottomRight, transform);
+        CGPoint bottomLeft = CGPointApplyAffineTransform(rectangleFeature.bottomLeft, transform);
+        NSLog(@"仿射变换之后topLeft.x=%f,topLeft.y=%f",topLeft.x,topLeft.y);
+
+        rectangleCoordinates = rectangleFeature ? @{
+                                 @"topLeft": @{ @"y": @(topLeft.y), @"x": @(topLeft.x)},
+                                 @"topRight": @{ @"y": @(topRight.y), @"x": @(topRight.x)},
+                                 @"bottomLeft": @{ @"y": @(bottomLeft.y), @"x": @(bottomLeft.x)},
+                                 @"bottomRight": @{ @"y": @(bottomRight.y), @"x": @(bottomRight.x)},
+                                 } : [NSDictionary dictionary];
+    }else{
+        rectangleCoordinates = rectangleFeature ? @{
+                                     @"topLeft": @{ @"y": @(rectangleFeature.bottomLeft.x + 30), @"x": @(rectangleFeature.bottomLeft.y)},
+                                     @"topRight": @{ @"y": @(rectangleFeature.topLeft.x + 30), @"x": @(rectangleFeature.topLeft.y)},
+                                     @"bottomLeft": @{ @"y": @(rectangleFeature.bottomRight.x), @"x": @(rectangleFeature.bottomRight.y)},
+                                     @"bottomRight": @{ @"y": @(rectangleFeature.topRight.x), @"x": @(rectangleFeature.topRight.y)},
+                                     } : [NSDictionary dictionary];
+    }
+    callback(@[@{@"success":@YES,@"rectangleCoordinates":rectangleCoordinates,@"size":@{@"width":@(uiImage.size.width),@"height":@(uiImage.size.height)}}]);
 }
 
 RCT_EXPORT_METHOD(crop:(NSDictionary *)points imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback)
@@ -234,21 +253,35 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri
     NSString *parsedImageUri = [imageUri stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     NSURL *fileURL = [NSURL fileURLWithPath:parsedImageUri];
     CIImage *ciImage = [CIImage imageWithContentsOfURL:fileURL];
+    UIImage *uiImage = [UIImage imageWithContentsOfFile:parsedImageUri];
+    NSDictionary *p = ciImage.properties;
+    NSLog(@"UIImage width=%.20f,height=%.20f",uiImage.size.width,uiImage.size.height);
+    float pixelWidth = [p[@"PixelWidth"] floatValue];
     
     CGPoint newLeft = CGPointMake([points[@"topLeft"][@"y"] floatValue], [points[@"topLeft"][@"x"] floatValue]);
     CGPoint newRight = CGPointMake([points[@"topRight"][@"y"] floatValue], [points[@"topRight"][@"x"] floatValue]);
     CGPoint newBottomRight = CGPointMake([points[@"bottomRight"][@"y"] floatValue], [points[@"bottomRight"][@"x"] floatValue]);
     CGPoint newBottomLeft = CGPointMake([points[@"bottomLeft"][@"y"] floatValue], [points[@"bottomLeft"][@"x"] floatValue]);
     
-//    newLeft = [self cartesianForPoint:newLeft height:[points[@"height"] floatValue] ];
-//    newRight = [self cartesianForPoint:newRight height:[points[@"height"] floatValue] ];
-//    newBottomLeft = [self cartesianForPoint:newBottomLeft height:[points[@"height"] floatValue] ];
-//    newBottomRight = [self cartesianForPoint:newBottomRight height:[points[@"height"] floatValue] ];
-    
-    
+    if(pixelWidth == uiImage.size.width){
+        
+        newLeft = CGPointMake([points[@"topLeft"][@"x"] floatValue], [points[@"topLeft"][@"y"] floatValue]);
+        newRight = CGPointMake([points[@"topRight"][@"x"] floatValue], [points[@"topRight"][@"y"] floatValue]);
+        newBottomRight = CGPointMake([points[@"bottomRight"][@"x"] floatValue], [points[@"bottomRight"][@"y"] floatValue]);
+        newBottomLeft = CGPointMake([points[@"bottomLeft"][@"x"] floatValue], [points[@"bottomLeft"][@"y"] floatValue]);
+        NSLog(@"裁剪收到的参数,topLeft.x=%f,topLeft.y=%f",newLeft.x,newLeft.y);
+        CGRect rect = CGRectMake(0, 0, uiImage.size.width, uiImage.size.height);
+        CGAffineTransform transform = CGAffineTransformMakeTranslation(0.f, CGRectGetHeight(rect));
+        transform = CGAffineTransformScale(transform, 1, -1);
+        newLeft = CGPointApplyAffineTransform(newLeft, transform);
+        newRight = CGPointApplyAffineTransform(newRight, transform);
+        newBottomRight = CGPointApplyAffineTransform(newBottomRight, transform);
+        newBottomLeft = CGPointApplyAffineTransform(newBottomLeft, transform);
+        NSLog(@"裁剪变换后的参数,topLeft.x=%f,topLeft.y=%f",newLeft.x,newLeft.y);
+
+    }
     
     NSMutableDictionary *rectangleCoordinates = [[NSMutableDictionary alloc] init];
-    
     rectangleCoordinates[@"inputTopLeft"] = [CIVector vectorWithCGPoint:newLeft];
     rectangleCoordinates[@"inputTopRight"] = [CIVector vectorWithCGPoint:newRight];
     rectangleCoordinates[@"inputBottomLeft"] = [CIVector vectorWithCGPoint:newBottomLeft];
@@ -263,7 +296,6 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri
     NSData *imageToEncode = UIImageJPEGRepresentation(image, 1.0);
     CGImageRelease(cgimage);
 
-    
     NSString *dir = NSSearchPathForDirectoriesInDomains ( NSDocumentDirectory , NSUserDomainMask , YES ).firstObject;
     int time = (int)[NSDate date].timeIntervalSince1970;
     NSString *filePath = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"document0_%i.jpeg",time]];
@@ -275,7 +307,6 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)points imageUri:(NSString *)imageUri
 - (CGPoint)cartesianForPoint:(CGPoint)point height:(float)height {
     return CGPointMake(point.x, height - point.y);
 }
-
 
 - (UIView*) view {
     _scannerView = [[DocumentScannerView alloc] init];
