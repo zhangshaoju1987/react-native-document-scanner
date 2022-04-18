@@ -196,8 +196,8 @@ RCT_EXPORT_METHOD(detectDocument:(NSString *)imageUri callback:(RCTResponseSende
                                  } : [NSDictionary dictionary];
     }else{
         rectangleCoordinates = rectangleFeature ? @{
-                                     @"topLeft": @{ @"y": @(rectangleFeature.bottomLeft.x + 30), @"x": @(rectangleFeature.bottomLeft.y)},
-                                     @"topRight": @{ @"y": @(rectangleFeature.topLeft.x + 30), @"x": @(rectangleFeature.topLeft.y)},
+                                     @"topLeft": @{ @"y": @(rectangleFeature.bottomLeft.x), @"x": @(rectangleFeature.bottomLeft.y)},
+                                     @"topRight": @{ @"y": @(rectangleFeature.topLeft.x), @"x": @(rectangleFeature.topLeft.y)},
                                      @"bottomLeft": @{ @"y": @(rectangleFeature.bottomRight.x), @"x": @(rectangleFeature.bottomRight.y)},
                                      @"bottomRight": @{ @"y": @(rectangleFeature.topRight.x), @"x": @(rectangleFeature.topRight.y)},
                                      } : [NSDictionary dictionary];
