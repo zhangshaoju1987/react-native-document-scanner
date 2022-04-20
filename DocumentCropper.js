@@ -24,9 +24,9 @@ export default class DocumentCropper extends Component {
         this.state = {
             ...this.state,
             topLeft: new Animated.ValueXY(cornerPoint && cornerPoint.topLeft? this.imageCoordinatesToViewCoordinates(cornerPoint.topLeft,"topLeft"): { x: 100, y: 100 }),
-            topRight: new Animated.ValueXY(cornerPoint && cornerPoint.topRight? this.imageCoordinatesToViewCoordinates(cornerPoint.topRight,"topRight"): { x: viewWidth - 100, y: 100 }),
-            bottomLeft: new Animated.ValueXY(cornerPoint&& cornerPoint.bottomLeft? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomLeft,"bottomLeft"): { x: 100, y: this.state.viewHeight - 100 },),
-            bottomRight: new Animated.ValueXY(cornerPoint&& cornerPoint.bottomRight? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomRight,"bottomRight"): {x: viewWidth - 100,y: this.state.viewHeight - 100})
+            topRight: new Animated.ValueXY(cornerPoint && cornerPoint.topRight? this.imageCoordinatesToViewCoordinates(cornerPoint.topRight,"topRight"): { x:  300, y: 100 }),
+            bottomLeft: new Animated.ValueXY(cornerPoint&& cornerPoint.bottomLeft? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomLeft,"bottomLeft"): { x: 100, y: 600 },),
+            bottomRight: new Animated.ValueXY(cornerPoint&& cornerPoint.bottomRight? this.imageCoordinatesToViewCoordinates(cornerPoint.bottomRight,"bottomRight"): {x: 300,y:600})
         };
         this.state = {
             ...this.state,
